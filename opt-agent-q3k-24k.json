@@ -1,0 +1,26 @@
+{
+  "label": "agent-q3k-24k",
+  "ready_s": 49.6,
+  "prefill_t_s": 372.82,
+  "decode_t_s": 0.0,
+  "prefill_all": [
+    374.9,
+    372.8,
+    371.2
+  ],
+  "decode_all": [
+    0.0,
+    0.0,
+    47.3
+  ],
+  "prompt_tokens": 481,
+  "predicted_tokens": 1,
+  "peak_vram_GiB": 15.18,
+  "free_at_peak_GiB": 0.8,
+  "peak_gtt_GiB": 0.286,
+  "gtt_final_GiB": 0.268,
+  "samples": 345,
+  "elapsed_s": 67.7,
+  "cmd": "--model models/Qwen3.8-27B-UD-Q3_K_XL.gguf --n-gpu-layers 99 --ctx-size 24576 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --ubatch-size 256 --batch-size 2048 --parallel 1 --host 127.0.0.1 --port 8080 --spec-draft-model models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf --spec-type draft-mtp",
+  "env": []
+}

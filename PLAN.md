@@ -143,6 +143,36 @@ Reproduce: `.venv/bin/python bench-server.py --label demo --model models/Qwen3.8
 --ctx 16384 --kt q4_0 --vt q4_0 --draft models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf --spec-type draft-mtp`
 or `MTP=models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf CTX=16384 ./run-server.sh`.
 
+## Wiring into OMP (2026-09-16)
+
+OMP ships a **built-in keyless `llama.cpp` provider**, auto-discovered at `LLAMA_CPP_BASE_URL` or
+`http://127.0.0.1:8080`. No `models.yml` entry and no `config.yml` change are needed — the server
+just has to be up when OMP starts.
+
+Agent profile (chosen for headroom at usable context):
+
+| config | peak VRAM | free | prefill | decode |
+|---|---|---|---|---|
+| **Q3_K_XL @24k ctx + MTP + q8_0 KV** | 15.18 GiB | **0.80** | 372.8 t/s | **47.3 t/s** |
+| IQ4_XS @16k ctx + MTP + q8_0 KV | 15.89 GiB | 0.10 ❌ | 366.6 t/s | 47.8 t/s |
+
+Q3_K_XL is the better agent quant despite lower standalone quality: it is 1 GiB smaller, so it buys
+8k more context *and* 0.8 GiB more headroom than IQ4_XS at the same speed.
+
+```bash
+CTX=24576 MODEL=models/Qwen3.8-27B-UD-Q3_K_XL.gguf \
+MTP=models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf REASONING_EFFORT=low ./run-server.sh
+```
+
+- OMP lists it as `llama.cpp/qwen3.8-27b` with the **real** context (25K) and thinking levels
+  (`low, medium, xhigh`) auto-detected; switch in-session with `/model llama.cpp/qwen3.8-27b`.
+- End-to-end verified: `omp -p "Reply with exactly: LOCAL OK" --model llama.cpp/qwen3.8-27b --no-session`
+  → `LOCAL OK` in 22.7 s.
+- Reliability: 9/9 chat requests healthy (6 instruct @ temp 0.7 thinking-off, 3 thinking @ temp 1.0).
+  The stray 1-token completions in benchmarking come from raw `/completion` with synthetic filler
+  prompts (the model EOSes on them), not from the chat endpoint.
+- Not reboot-persistent; a systemd user unit is the follow-up if this becomes the daily driver.
+
 ## Phases
 
 ### 1. Build — done, rootless (no sudo needed)

@@ -17,15 +17,16 @@ MMPROJ="${MMPROJ:-}"
 
 args=(
   --model "$MODEL"
+  --alias "${ALIAS:-qwen3.8-27b}"
   --n-gpu-layers 99
   --ctx-size "$CTX"
   --flash-attn on
-  --cache-type-k q8_0
-  --cache-type-v q8_0
+  --cache-type-k "${KVTYPE:-q8_0}"
+  --cache-type-v "${KVTYPE:-q8_0}"
   --ubatch-size "$UB"
   --batch-size 2048
   --jinja
-  --chat-template-kwargs '{"reasoning_effort":"medium"}'
+  --chat-template-kwargs "{\"reasoning_effort\":\"${REASONING_EFFORT:-medium}\"}"
   --host 127.0.0.1
   --port "$PORT"
   --metrics
