@@ -1,0 +1,26 @@
+{
+  "label": "r2-iq4-8k-q4-mtp",
+  "ready_s": 21.6,
+  "prefill_t_s": 396.48,
+  "decode_t_s": 47.92,
+  "prefill_all": [
+    392.8,
+    396.5,
+    397.7
+  ],
+  "decode_all": [
+    50.5,
+    47.9,
+    47.0
+  ],
+  "prompt_tokens": 840,
+  "predicted_tokens": 512,
+  "peak_vram_GiB": 15.64,
+  "free_at_peak_GiB": 0.34,
+  "peak_gtt_GiB": 0.229,
+  "gtt_final_GiB": 0.229,
+  "samples": 820,
+  "elapsed_s": 63.4,
+  "cmd": "--model models/Qwen3.8-27B-UD-IQ4_XS.gguf --n-gpu-layers 99 --ctx-size 8192 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --ubatch-size 256 --batch-size 2048 --parallel 1 --host 127.0.0.1 --port 8080 --spec-draft-model models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf --spec-type draft-mtp",
+  "env": []
+}

@@ -1,0 +1,32 @@
+{
+  "tag": "iq4xs-refit",
+  "model": "Qwen3.8-27B-UD-IQ4_XS.gguf",
+  "size_bytes": 14252845984,
+  "size_GiB": 13.27,
+  "vram_total_GiB": 15.98,
+  "baseline_vram_GiB": 1.12,
+  "ctx": 32768,
+  "fit": {
+    "baseline_vram": 1200455680,
+    "ready_s": 38.1,
+    "peak_vram": 16590766080,
+    "peak_gtt": 202375168,
+    "peak_vram_GiB": 15.45,
+    "free_at_peak_GiB": 0.53,
+    "over_baseline_GiB": 14.33,
+    "smoke_pass": true,
+    "needle_prompt_tokens": 25234,
+    "needle_seconds": 59.2,
+    "smoke_output": [
+      "PASS  health endpoint ok \u2014 {'status': 'ok'}",
+      "PASS  thinking emits reasoning_content \u2014 184 chars, 3.8s",
+      "PASS  answer correct (0.05) \u2014 '0.05'",
+      "PASS  tool_call emitted \u2014 [{\"type\": \"function\", \"function\": {\"name\": \"get_weather\", \"arguments\": \"{\\\"city\\\":\\\"Reykjavik\\\"}\"}, \"id\": \"NQpls05psY5LNVktFkQhrIcN0x1Vau34\"}]",
+      "PASS  tool args carry the city \u2014 {\"city\":\"Reykjavik\"}",
+      "note: ctx=32768, haystack=1201 lines",
+      "PASS  long-context needle recall \u2014 25234 prompt tokens, 59.2s",
+      "",
+      "ALL PASS"
+    ]
+  }
+}

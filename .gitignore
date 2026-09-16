@@ -1,0 +1,15 @@
+# Build trees / toolchain — reproducible from PLAN.md (llama.cpp pinned at fb27a52)
+llama.cpp/
+sdk/
+third_party/
+.venv/
+
+# Model weights — re-downloadable; exact sha256 digests are recorded in PLAN.md / bench-data.json
+models/
+*.gguf
+
+# Run logs (the opt-*.json records that back the numbers ARE tracked)
+*.log
+
+__pycache__/
+*.pyc

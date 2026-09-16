@@ -1,0 +1,389 @@
+{
+  "generated": "2026-09-16T23:35:41+00:00",
+  "host": {
+    "gpu": "AMD Radeon RX 7800 XT (RADV NAVI32, gfx1101)",
+    "vram_GiB": 15.98,
+    "desktop_baseline_GiB": 0.82,
+    "ram_GiB": 15,
+    "cpu": "AMD Ryzen 7 3700X (8C/16T)",
+    "backend": "llama.cpp Vulkan (RADV / Mesa 26.2.2)",
+    "llama_cpp_commit": "fb27a52"
+  },
+  "protocol": {
+    "throughput": "llama-bench, both models interleaved in one invocation, 5 reps, 2 s delay, t=8 poll=0; two passes with reversed model order; mean of passes reported",
+    "fit": "llama-server --ctx-size 32768, q8_0 KV, ub 256, fa on, --n-gpu-layers 99, peak VRAM sampled at 0.25 s during an 18.7k-token recall request",
+    "quality": "llama-perplexity on the same ~12x4096-token corpus slice, identical flags"
+  },
+  "quants": [
+    {
+      "tag": "q3kx",
+      "name": "UD-Q3_K_XL",
+      "size_GiB": 12.24,
+      "size_bytes": 13146393504,
+      "bpw": 3.85,
+      "throughput": {
+        "pp512_d0": {
+          "single_pass_t_s": null,
+          "single_pass_stdev": null,
+          "pass_values": [
+            502.98,
+            510.09
+          ],
+          "mean_t_s": 506.53,
+          "half_range": 3.55
+        },
+        "tg128_d0": {
+          "single_pass_t_s": null,
+          "single_pass_stdev": null,
+          "pass_values": [
+            33.83,
+            33.78
+          ],
+          "mean_t_s": 33.8,
+          "half_range": 0.02
+        },
+        "pp512_d8192": {
+          "single_pass_t_s": null,
+          "single_pass_stdev": null,
+          "pass_values": [
+            442.31,
+            441.61
+          ],
+          "mean_t_s": 441.96,
+          "half_range": 0.35
+        },
+        "tg128_d8192": {
+          "single_pass_t_s": null,
+          "single_pass_stdev": null,
+          "pass_values": [
+            32.56,
+            32.55
+          ],
+          "mean_t_s": 32.55,
+          "half_range": 0.01
+        }
+      },
+      "fit": {
+        "baseline_vram": 1200455680,
+        "ready_s": 31.6,
+        "peak_vram": 15555588096,
+        "peak_gtt": 202375168,
+        "peak_vram_GiB": 14.49,
+        "free_at_peak_GiB": 1.5,
+        "over_baseline_GiB": 13.37,
+        "smoke_pass": true,
+        "needle_prompt_tokens": 25234,
+        "needle_seconds": 59.1
+      },
+      "smoke_output": [
+        "PASS  health endpoint ok \u2014 {'status': 'ok'}",
+        "PASS  thinking emits reasoning_content \u2014 181 chars, 3.6s",
+        "PASS  answer correct (0.05) \u2014 '0.05'",
+        "PASS  tool_call emitted \u2014 [{\"type\": \"function\", \"function\": {\"name\": \"get_weather\", \"arguments\": \"{\\\"city\\\":\\\"Reykjavik\\\"}\"}, \"id\": \"3rwp563bdXMvvo0Fzb9IniFqP99EpXlg\"}]",
+        "PASS  tool args carry the city \u2014 {\"city\":\"Reykjavik\"}",
+        "note: ctx=32768, haystack=1201 lines",
+        "PASS  long-context needle recall \u2014 25234 prompt tokens, 59.1s",
+        "",
+        "ALL PASS"
+      ],
+      "perplexity": {
+        "ppl": 7.5489,
+        "ppl_err": 0.11695,
+        "peak_vram_GiB": 13.14
+      }
+    },
+    {
+      "tag": "iq4xs",
+      "name": "UD-IQ4_XS",
+      "size_GiB": 13.27,
+      "size_bytes": 14252845984,
+      "bpw": 4.17,
+      "throughput": {
+        "pp512_d0": {
+          "single_pass_t_s": null,
+          "single_pass_stdev": null,
+          "pass_values": [
+            506.23,
+            501.06
+          ],
+          "mean_t_s": 503.64,
+          "half_range": 2.59
+        },
+        "tg128_d0": {
+          "single_pass_t_s": null,
+          "single_pass_stdev": null,
+          "pass_values": [
+            32.36,
+            32.35
+          ],
+          "mean_t_s": 32.36,
+          "half_range": 0.0
+        },
+        "pp512_d8192": {
+          "single_pass_t_s": null,
+          "single_pass_stdev": null,
+          "pass_values": [
+            442.45,
+            442.22
+          ],
+          "mean_t_s": 442.34,
+          "half_range": 0.11
+        },
+        "tg128_d8192": {
+          "single_pass_t_s": null,
+          "single_pass_stdev": null,
+          "pass_values": [
+            31.21,
+            31.18
+          ],
+          "mean_t_s": 31.2,
+          "half_range": 0.02
+        }
+      },
+      "fit": {
+        "baseline_vram": 1200455680,
+        "ready_s": 38.1,
+        "peak_vram": 16590766080,
+        "peak_gtt": 202375168,
+        "peak_vram_GiB": 15.45,
+        "free_at_peak_GiB": 0.53,
+        "over_baseline_GiB": 14.33,
+        "smoke_pass": true,
+        "needle_prompt_tokens": 25234,
+        "needle_seconds": 59.2
+      },
+      "smoke_output": [
+        "PASS  health endpoint ok \u2014 {'status': 'ok'}",
+        "PASS  thinking emits reasoning_content \u2014 184 chars, 3.8s",
+        "PASS  answer correct (0.05) \u2014 '0.05'",
+        "PASS  tool_call emitted \u2014 [{\"type\": \"function\", \"function\": {\"name\": \"get_weather\", \"arguments\": \"{\\\"city\\\":\\\"Reykjavik\\\"}\"}, \"id\": \"NQpls05psY5LNVktFkQhrIcN0x1Vau34\"}]",
+        "PASS  tool args carry the city \u2014 {\"city\":\"Reykjavik\"}",
+        "note: ctx=32768, haystack=1201 lines",
+        "PASS  long-context needle recall \u2014 25234 prompt tokens, 59.2s",
+        "",
+        "ALL PASS"
+      ],
+      "perplexity": {
+        "ppl": 7.0347,
+        "ppl_err": 0.10842,
+        "peak_vram_GiB": 14.17
+      }
+    }
+  ],
+  "extra_profiles": [
+    {
+      "tag": "iq4xs-16k",
+      "model": "Qwen3.8-27B-UD-IQ4_XS.gguf",
+      "ctx": 16384,
+      "size_GiB": 13.27,
+      "peak_vram_GiB": 14.86,
+      "free_at_peak_GiB": 1.12,
+      "baseline_vram_GiB": 1.12,
+      "net_GiB": 13.74,
+      "note": "same IQ4_XS weights, 16k context \u2014 the safe-headroom profile"
+    }
+  ],
+  "optimization": [
+    {
+      "label": "graphicsq",
+      "decode_t_s": 52.66,
+      "prefill_t_s": 358.13,
+      "peak_vram_GiB": 15.64,
+      "free_at_peak_GiB": 0.34,
+      "peak_gtt_GiB": 0.229,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": true,
+      "ctx": 8192,
+      "quants": "IQ4_XS",
+      "env": [
+        "GGML_VK_ALLOW_GRAPHICS_QUEUE=1"
+      ]
+    },
+    {
+      "label": "iq4-2k-q4-mtp",
+      "decode_t_s": 50.11,
+      "prefill_t_s": 356.24,
+      "peak_vram_GiB": 15.53,
+      "free_at_peak_GiB": 0.46,
+      "peak_gtt_GiB": 0.223,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": true,
+      "ctx": 2048,
+      "quants": "IQ4_XS",
+      "env": []
+    },
+    {
+      "label": "iq4-2k-q4",
+      "decode_t_s": 31.48,
+      "prefill_t_s": 393.5,
+      "peak_vram_GiB": 13.92,
+      "free_at_peak_GiB": 2.07,
+      "peak_gtt_GiB": 0.167,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": false,
+      "ctx": 2048,
+      "quants": "IQ4_XS",
+      "env": []
+    },
+    {
+      "label": "iq4-32k-q8",
+      "decode_t_s": 31.57,
+      "prefill_t_s": 395.0,
+      "peak_vram_GiB": 14.96,
+      "free_at_peak_GiB": 1.02,
+      "peak_gtt_GiB": 0.182,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": false,
+      "ctx": 32768,
+      "quants": "IQ4_XS",
+      "env": []
+    },
+    {
+      "label": "mtp-8k",
+      "decode_t_s": 50.29,
+      "prefill_t_s": 351.07,
+      "peak_vram_GiB": 15.66,
+      "free_at_peak_GiB": 0.33,
+      "peak_gtt_GiB": 0.229,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": true,
+      "ctx": 8192,
+      "quants": "IQ4_XS",
+      "env": []
+    },
+    {
+      "label": "nmax1",
+      "decode_t_s": 46.3,
+      "prefill_t_s": 367.64,
+      "peak_vram_GiB": 15.35,
+      "free_at_peak_GiB": 0.63,
+      "peak_gtt_GiB": 0.227,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": true,
+      "ctx": 8192,
+      "quants": "IQ4_XS",
+      "env": []
+    },
+    {
+      "label": "nmax2",
+      "decode_t_s": 51.71,
+      "prefill_t_s": 363.76,
+      "peak_vram_GiB": 15.5,
+      "free_at_peak_GiB": 0.49,
+      "peak_gtt_GiB": 0.228,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": true,
+      "ctx": 8192,
+      "quants": "IQ4_XS",
+      "env": []
+    },
+    {
+      "label": "q3k-16k-q4-mtp",
+      "decode_t_s": 49.79,
+      "prefill_t_s": 367.5,
+      "peak_vram_GiB": 14.79,
+      "free_at_peak_GiB": 1.19,
+      "peak_gtt_GiB": 0.237,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": true,
+      "ctx": 16384,
+      "quants": "Q3_K_XL",
+      "env": []
+    },
+    {
+      "label": "q8kv",
+      "decode_t_s": 48.46,
+      "prefill_t_s": 367.65,
+      "peak_vram_GiB": 15.77,
+      "free_at_peak_GiB": 0.21,
+      "peak_gtt_GiB": 0.229,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": true,
+      "ctx": 8192,
+      "quants": "IQ4_XS",
+      "env": []
+    },
+    {
+      "label": "t4",
+      "decode_t_s": 47.04,
+      "prefill_t_s": 367.83,
+      "peak_vram_GiB": 15.66,
+      "free_at_peak_GiB": 0.33,
+      "peak_gtt_GiB": 0.229,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": true,
+      "ctx": 8192,
+      "quants": "IQ4_XS",
+      "env": []
+    },
+    {
+      "label": "xferq",
+      "decode_t_s": 50.58,
+      "prefill_t_s": 367.02,
+      "peak_vram_GiB": 15.64,
+      "free_at_peak_GiB": 0.34,
+      "peak_gtt_GiB": 0.229,
+      "prompt_tokens": 481,
+      "predicted_tokens": 512,
+      "mtp": true,
+      "ctx": 8192,
+      "quants": "IQ4_XS",
+      "env": [
+        "GGML_VK_ASYNC_USE_TRANSFER_QUEUE=1"
+      ]
+    }
+  ],
+  "target_run": {
+    "source": "https://www.localmaxxing.com/en/hardware/DISCRETE_GPU%3Arx%207800%20xt?name=RX+7800+XT&run=cmt0nfmo00f1jms01zkdjkvc7",
+    "decode_t_s": 28.0,
+    "prefill_t_s": 500.0,
+    "quantization": "Unsloth-Dynamic-IQ4_XS",
+    "engine": "llama.cpp",
+    "context": 2048,
+    "prompt_tokens": 512,
+    "output_tokens": 512,
+    "gpu": "RX 7800 XT",
+    "cpu": "Ryzen 7 7700",
+    "ram_Gb": 32,
+    "os": "CachyOS",
+    "flags": "-c 154000 -b 2048 -ub 256 -fa on -ctk q4_0 -ctv q4_0 --parallel 1"
+  },
+  "reference": [
+    {
+      "source": "https://unsloth.ai/docs/models/qwen3.5/gguf-benchmarks.md",
+      "model": "Qwen3.5 (analogue)",
+      "q3_k_xl": {
+        "ppl": 6.7245,
+        "kld_mean": 0.0308
+      },
+      "iq4_xs": {
+        "ppl": 6.6447,
+        "kld_mean": 0.0235
+      },
+      "note": "different model size \u2014 direction only, not this 27B on this box"
+    },
+    {
+      "source": "https://unsloth.ai/docs/models/qwen3.8-next.md",
+      "model": "Qwen3.8-Flash-Next 125B MoE (analogue)",
+      "q3_k_xl": {
+        "top1_acc_pct": 88.315,
+        "kld_mean": 0.106504
+      },
+      "iq4_xs": {
+        "top1_acc_pct": 89.554,
+        "kld_mean": 0.08363
+      },
+      "note": "analogue model; shows the same direction (IQ4_XS more accurate)"
+    }
+  ]
+}

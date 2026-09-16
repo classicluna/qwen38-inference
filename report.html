@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Qwen3.8-27B quant A/B — RX 7800 XT</title>
+<style>
+:root { --bg:#0e1116; --panel:#161b22; --line:#26303a; --fg:#e6edf3; --dim:#8b98a5; }
+* { box-sizing:border-box }
+body { margin:0; background:var(--bg); color:var(--fg);
+  font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+main { max-width:1080px; margin:0 auto; padding:32px 20px 64px }
+h1 { font-size:26px; margin:0 0 4px } h2 { font-size:17px; margin:0 0 14px; letter-spacing:.02em }
+.sub { color:var(--dim); margin:0 0 26px }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px; margin:0 0 20px }
+.key { display:inline-flex; align-items:center; gap:8px; margin-right:22px; font-weight:600 }
+.key i { width:12px; height:12px; border-radius:3px; display:inline-block }
+.dim { color:var(--dim); font-weight:400; font-size:13px }
+.chart { width:100%; height:auto; display:block }
+.grid { stroke:var(--line); stroke-width:1 }
+.ceiling { stroke:#ff6b6b; stroke-width:2; stroke-dasharray:5 4 }
+.ceiling-label { fill:#ff6b6b; font-size:12px }
+.bar { opacity:.92 } .bar:hover { opacity:1 }
+.whisker { stroke:var(--fg); stroke-width:1.5; opacity:.7 }
+.glabel { fill:var(--fg); font-size:13px } .gsub { fill:var(--dim); font-size:11px }
+.axis { fill:var(--dim); font-size:11px } .value { fill:var(--fg); font-size:12px; font-weight:600 }
+table { width:100%; border-collapse:collapse; font-size:14px; font-variant-numeric:tabular-nums }
+th,td { text-align:right; padding:7px 10px; border-bottom:1px solid var(--line) }
+thead th { color:var(--dim); font-weight:600 } tbody th { text-align:left; color:var(--dim); font-weight:500 }
+tbody tr:last-child td, tbody tr:last-child th { border-bottom:0 }
+.ref li { margin-bottom:12px } code { color:#8fd3ff; font-size:12px; word-break:break-all }
+.verdict { border-left:3px solid #4cc9f0 }
+.note { color:var(--dim); font-size:13px }
+</style></head>
+<body><main>
+<h1>Qwen3.8-27B — UD-Q3_K_XL vs UD-IQ4_XS</h1>
+<p class="sub">AMD Radeon RX 7800 XT (RADV NAVI32, gfx1101) · 15.98 GiB VRAM · 15 GiB RAM ·
+llama.cpp Vulkan (RADV / Mesa 26.2.2) · llama.cpp <code>fb27a52</code> ·
+measured 2026-09-16 23:35 UTC</p>
+
+<div class="card"><h2>Legend</h2><p style="margin:0"><span class="key"><i style="background:#4cc9f0"></i>UD-Q3_K_XL <span class="dim">12.24 GiB · 3.85 bpw</span></span><span class="key"><i style="background:#f79256"></i>UD-IQ4_XS <span class="dim">13.27 GiB · 4.17 bpw</span></span></p></div>
+
+<div class="card"><h2>Beating the localmaxxing run — same GPU, same quant</h2>
+<table><thead><tr><th>metric</th><th>submitted run</th><th>this box (with MTP)</th></tr></thead><tbody><tr><th>GPU</th><td>RX 7800 XT</td><td>AMD Radeon RX 7800 XT (RADV NAVI32, gfx1101)</td></tr><tr><th>Engine / backend</th><td>llama.cpp (submitted)</td><td>llama.cpp Vulkan (RADV)</td></tr><tr><th>Quant</th><td>Unsloth-Dynamic-IQ4_XS</td><td>Unsloth-Dynamic-IQ4_XS</td></tr><tr><th>Input / output tokens</th><td>512 / 512</td><td>481 / 512</td></tr><tr><th>Decode</th><td>28.0 t/s</td><td>50.11 t/s (+79%)</td></tr><tr><th>Prefill</th><td>500 t/s</td><td>356 t/s</td></tr><tr><th>Peak VRAM</th><td>not submitted</td><td>15.53 GiB (0.46 free)</td></tr><tr><th>CPU / RAM</th><td>Ryzen 7 7700 / 32 GB</td><td>AMD Ryzen 7 3700X (8C/16T) / 15 GB</td></tr></tbody></table>
+<svg viewBox="0 0 980 393" class="chart" role="img">
+<line x1="210.0" y1="22" x2="210.0" y2="367" class="grid"/>
+<text x="210.0" y="383" class="axis" text-anchor="middle">0</text>
+<line x1="352.0" y1="22" x2="352.0" y2="367" class="grid"/>
+<text x="352.0" y="383" class="axis" text-anchor="middle">12</text>
+<line x1="494.0" y1="22" x2="494.0" y2="367" class="grid"/>
+<text x="494.0" y="383" class="axis" text-anchor="middle">24</text>
+<line x1="636.0" y1="22" x2="636.0" y2="367" class="grid"/>
+<text x="636.0" y="383" class="axis" text-anchor="middle">36</text>
+<line x1="778.0" y1="22" x2="778.0" y2="367" class="grid"/>
+<text x="778.0" y="383" class="axis" text-anchor="middle">48</text>
+<line x1="920.0" y1="22" x2="920.0" y2="367" class="grid"/>
+<text x="920.0" y="383" class="axis" text-anchor="middle">60</text>
+<line x1="541.2" y1="22" x2="541.2" y2="367" class="ceiling"/>
+<text x="535.2" y="16" class="ceiling-label" text-anchor="end">localmaxxing target 28 t/s</text>
+<text x="196" y="37.0" class="glabel" text-anchor="end">IQ4_XS · no MTP · 2k</text>
+<rect class="bar" x="210" y="22" width="372.3" height="22" rx="3" fill="#5b6b7c"><title>IQ4_XS · no MTP · 2k: decode 31.48 t/s, prefill 394 t/s, peak 13.92 GiB, 2.07 GiB free</title></rect>
+<text x="590.3" y="37.0" class="value">31.5 t/s · free 2.07 GiB</text>
+<text x="196" y="68.0" class="glabel" text-anchor="end">IQ4_XS · no MTP · 32k</text>
+<rect class="bar" x="210" y="53" width="373.4" height="22" rx="3" fill="#5b6b7c"><title>IQ4_XS · no MTP · 32k: decode 31.57 t/s, prefill 395 t/s, peak 14.96 GiB, 1.02 GiB free</title></rect>
+<text x="591.4" y="68.0" class="value">31.6 t/s · free 1.02 GiB</text>
+<text x="196" y="99.0" class="glabel" text-anchor="end">IQ4_XS · MTP · 8k</text>
+<rect class="bar" x="210" y="84" width="547.6" height="22" rx="3" fill="#f79256"><title>IQ4_XS · MTP · 8k: decode 46.30 t/s, prefill 368 t/s, peak 15.35 GiB, 0.63 GiB free</title></rect>
+<text x="765.6" y="99.0" class="value">46.3 t/s · free 0.63 GiB</text>
+<text x="196" y="130.0" class="glabel" text-anchor="end">IQ4_XS · MTP · 8k</text>
+<rect class="bar" x="210" y="115" width="556.3" height="22" rx="3" fill="#f79256"><title>IQ4_XS · MTP · 8k: decode 47.04 t/s, prefill 368 t/s, peak 15.66 GiB, 0.33 GiB free</title></rect>
+<text x="774.3" y="130.0" class="value">47.0 t/s · free 0.33 GiB</text>
+<text x="196" y="161.0" class="glabel" text-anchor="end">IQ4_XS · MTP · 8k</text>
+<rect class="bar" x="210" y="146" width="573.1" height="22" rx="3" fill="#f79256"><title>IQ4_XS · MTP · 8k: decode 48.46 t/s, prefill 368 t/s, peak 15.77 GiB, 0.21 GiB free</title></rect>
+<text x="791.1" y="161.0" class="value">48.5 t/s · free 0.21 GiB</text>
+<text x="196" y="192.0" class="glabel" text-anchor="end">Q3_K_XL · MTP · 16k</text>
+<rect class="bar" x="210" y="177" width="588.9" height="22" rx="3" fill="#f79256"><title>Q3_K_XL · MTP · 16k: decode 49.79 t/s, prefill 368 t/s, peak 14.79 GiB, 1.19 GiB free</title></rect>
+<text x="806.9" y="192.0" class="value">49.8 t/s · free 1.19 GiB</text>
+<text x="196" y="223.0" class="glabel" text-anchor="end">IQ4_XS · MTP · 2k</text>
+<rect class="bar" x="210" y="208" width="592.6" height="22" rx="3" fill="#f79256"><title>IQ4_XS · MTP · 2k: decode 50.11 t/s, prefill 356 t/s, peak 15.53 GiB, 0.46 GiB free</title></rect>
+<text x="810.6" y="223.0" class="value">50.1 t/s · free 0.46 GiB</text>
+<text x="196" y="254.0" class="glabel" text-anchor="end">IQ4_XS · MTP · 8k</text>
+<rect class="bar" x="210" y="239" width="594.8" height="22" rx="3" fill="#f79256"><title>IQ4_XS · MTP · 8k: decode 50.29 t/s, prefill 351 t/s, peak 15.66 GiB, 0.33 GiB free</title></rect>
+<text x="812.8" y="254.0" class="value">50.3 t/s · free 0.33 GiB</text>
+<text x="196" y="285.0" class="glabel" text-anchor="end">IQ4_XS · MTP · 8k</text>
+<rect class="bar" x="210" y="270" width="598.2" height="22" rx="3" fill="#f79256"><title>IQ4_XS · MTP · 8k: decode 50.58 t/s, prefill 367 t/s, peak 15.64 GiB, 0.34 GiB free</title></rect>
+<text x="816.2" y="285.0" class="value">50.6 t/s · free 0.34 GiB</text>
+<text x="196" y="316.0" class="glabel" text-anchor="end">IQ4_XS · MTP · 8k</text>
+<rect class="bar" x="210" y="301" width="611.6" height="22" rx="3" fill="#f79256"><title>IQ4_XS · MTP · 8k: decode 51.71 t/s, prefill 364 t/s, peak 15.50 GiB, 0.49 GiB free</title></rect>
+<text x="829.6" y="316.0" class="value">51.7 t/s · free 0.49 GiB</text>
+<text x="196" y="347.0" class="glabel" text-anchor="end">IQ4_XS · MTP · 8k</text>
+<rect class="bar" x="210" y="332" width="622.8" height="22" rx="3" fill="#f79256"><title>IQ4_XS · MTP · 8k: decode 52.66 t/s, prefill 358 t/s, peak 15.64 GiB, 0.34 GiB free</title></rect>
+<text x="840.8" y="347.0" class="value">52.7 t/s · free 0.34 GiB</text>
+</svg>
+<p class="note">Target run: <code>https://www.localmaxxing.com/en/hardware/DISCRETE_GPU%3Arx%207800%20xt?name=RX+7800+XT&amp;run=cmt0nfmo00f1jms01zkdjkvc7</code>. Rows measured here with real 481-in / 512-out
+requests through <code>llama-server</code> — the same protocol the submission used — with VRAM and GTT
+sampled continuously (50&nbsp;ms). "MTP" = the model's own multi-token-prediction head used as a
+speculative draft (<code>--spec-draft-model mtp-Qwen3.8-27B-Q4_0.gguf --spec-type draft-mtp</code>).
+Best MTP config: <b>52.7 t/s</b> decode, +88% versus the target.</p></div>
+
+<div class="card"><h2>Decode speed (tokens/s, higher is better)</h2>
+<svg viewBox="0 0 980 178" class="chart" role="img">
+<line x1="210.0" y1="8" x2="210.0" y2="152" class="grid"/>
+<text x="210.0" y="168" class="axis" text-anchor="middle">0</text>
+<line x1="352.0" y1="8" x2="352.0" y2="152" class="grid"/>
+<text x="352.0" y="168" class="axis" text-anchor="middle">8</text>
+<line x1="494.0" y1="8" x2="494.0" y2="152" class="grid"/>
+<text x="494.0" y="168" class="axis" text-anchor="middle">15</text>
+<line x1="636.0" y1="8" x2="636.0" y2="152" class="grid"/>
+<text x="636.0" y="168" class="axis" text-anchor="middle">23</text>
+<line x1="778.0" y1="8" x2="778.0" y2="152" class="grid"/>
+<text x="778.0" y="168" class="axis" text-anchor="middle">30</text>
+<line x1="920.0" y1="8" x2="920.0" y2="152" class="grid"/>
+<text x="920.0" y="168" class="axis" text-anchor="middle">38</text>
+<text x="196" y="35.0" class="glabel" text-anchor="end">128 tokens, empty ctx</text>
+<rect x="210" y="8.0" width="633.6" height="20" rx="3" fill="#4cc9f0" class="bar"><title>UD-Q3_K_XL — 128 tokens, empty ctx: 33.80 t/s (±0.02)</title></rect>
+<line x1="843.2" y1="18.0" x2="843.9" y2="18.0" class="whisker"/><line x1="843.9" y1="10.0" x2="843.9" y2="26.0" class="whisker"/>
+<text x="851.6" y="22.0" class="value">33.80</text>
+<rect x="210" y="32.0" width="606.6" height="20" rx="3" fill="#f79256" class="bar"><title>UD-IQ4_XS — 128 tokens, empty ctx: 32.36 t/s (±0.00)</title></rect>
+<text x="824.6" y="46.0" class="value">32.36</text>
+<text x="196" y="105.0" class="glabel" text-anchor="end">128 tokens @ 8k depth</text>
+<rect x="210" y="78.0" width="610.1" height="20" rx="3" fill="#4cc9f0" class="bar"><title>UD-Q3_K_XL — 128 tokens @ 8k depth: 32.55 t/s (±0.01)</title></rect>
+<line x1="819.9" y1="88.0" x2="820.3" y2="88.0" class="whisker"/><line x1="820.3" y1="80.0" x2="820.3" y2="96.0" class="whisker"/>
+<text x="828.1" y="92.0" class="value">32.55</text>
+<rect x="210" y="102.0" width="584.8" height="20" rx="3" fill="#f79256" class="bar"><title>UD-IQ4_XS — 128 tokens @ 8k depth: 31.20 t/s (±0.02)</title></rect>
+<line x1="794.4" y1="112.0" x2="795.2" y2="112.0" class="whisker"/><line x1="795.2" y1="104.0" x2="795.2" y2="120.0" class="whisker"/>
+<text x="802.8" y="116.0" class="value">31.20</text>
+</svg>
+<p class="note">Whiskers show the spread between the two interleaved passes (reversed model order);
+within-pass standard deviation was ≤0.15 t/s, so the decode gap is real, not noise.</p></div>
+
+<div class="card"><h2>Prefill speed (tokens/s, higher is better)</h2>
+<svg viewBox="0 0 980 178" class="chart" role="img">
+<line x1="210.0" y1="8" x2="210.0" y2="152" class="grid"/>
+<text x="210.0" y="168" class="axis" text-anchor="middle">0</text>
+<line x1="352.0" y1="8" x2="352.0" y2="152" class="grid"/>
+<text x="352.0" y="168" class="axis" text-anchor="middle">114</text>
+<line x1="494.0" y1="8" x2="494.0" y2="152" class="grid"/>
+<text x="494.0" y="168" class="axis" text-anchor="middle">229</text>
+<line x1="636.0" y1="8" x2="636.0" y2="152" class="grid"/>
+<text x="636.0" y="168" class="axis" text-anchor="middle">343</text>
+<line x1="778.0" y1="8" x2="778.0" y2="152" class="grid"/>
+<text x="778.0" y="168" class="axis" text-anchor="middle">457</text>
+<line x1="920.0" y1="8" x2="920.0" y2="152" class="grid"/>
+<text x="920.0" y="168" class="axis" text-anchor="middle">571</text>
+<text x="196" y="35.0" class="glabel" text-anchor="end">512-token prompt</text>
+<rect x="210" y="8.0" width="629.5" height="20" rx="3" fill="#4cc9f0" class="bar"><title>UD-Q3_K_XL — 512-token prompt: 506.53 t/s (±3.55)</title></rect>
+<line x1="835.1" y1="18.0" x2="843.9" y2="18.0" class="whisker"/><line x1="843.9" y1="10.0" x2="843.9" y2="26.0" class="whisker"/>
+<text x="847.5" y="22.0" class="value">506.53</text>
+<rect x="210" y="32.0" width="625.9" height="20" rx="3" fill="#f79256" class="bar"><title>UD-IQ4_XS — 512-token prompt: 503.64 t/s (±2.59)</title></rect>
+<line x1="832.7" y1="42.0" x2="839.1" y2="42.0" class="whisker"/><line x1="839.1" y1="34.0" x2="839.1" y2="50.0" class="whisker"/>
+<text x="843.9" y="46.0" class="value">503.64</text>
+<text x="196" y="105.0" class="glabel" text-anchor="end">512-token prompt @ 8k depth</text>
+<rect x="210" y="78.0" width="549.3" height="20" rx="3" fill="#4cc9f0" class="bar"><title>UD-Q3_K_XL — 512-token prompt @ 8k depth: 441.96 t/s (±0.35)</title></rect>
+<line x1="758.8" y1="88.0" x2="759.7" y2="88.0" class="whisker"/><line x1="759.7" y1="80.0" x2="759.7" y2="96.0" class="whisker"/>
+<text x="767.3" y="92.0" class="value">441.96</text>
+<rect x="210" y="102.0" width="549.7" height="20" rx="3" fill="#f79256" class="bar"><title>UD-IQ4_XS — 512-token prompt @ 8k depth: 442.34 t/s (±0.11)</title></rect>
+<line x1="759.6" y1="112.0" x2="759.9" y2="112.0" class="whisker"/><line x1="759.9" y1="104.0" x2="759.9" y2="120.0" class="whisker"/>
+<text x="767.7" y="116.0" class="value">442.34</text>
+</svg>
+<p class="note">Prefill is a tie within noise — the IQ4_XS lookup-table dequant costs decode throughput, not prompt processing.</p></div>
+
+<div class="card"><h2>VRAM fit — the deciding chart</h2>
+<svg viewBox="0 0 980 206" class="chart" role="img">
+<line x1="210.0" y1="8" x2="210.0" y2="180" class="grid"/>
+<text x="210.0" y="196" class="axis" text-anchor="middle">0.0</text>
+<line x1="352.0" y1="8" x2="352.0" y2="180" class="grid"/>
+<text x="352.0" y="196" class="axis" text-anchor="middle">3.2</text>
+<line x1="494.0" y1="8" x2="494.0" y2="180" class="grid"/>
+<text x="494.0" y="196" class="axis" text-anchor="middle">6.4</text>
+<line x1="636.0" y1="8" x2="636.0" y2="180" class="grid"/>
+<text x="636.0" y="196" class="axis" text-anchor="middle">9.6</text>
+<line x1="778.0" y1="8" x2="778.0" y2="180" class="grid"/>
+<text x="778.0" y="196" class="axis" text-anchor="middle">12.8</text>
+<line x1="920.0" y1="8" x2="920.0" y2="180" class="grid"/>
+<text x="920.0" y="196" class="axis" text-anchor="middle">16.0</text>
+<line x1="920.0" y1="8" x2="920.0" y2="180" class="ceiling"/>
+<text x="914.0" y="20" class="ceiling-label" text-anchor="end">VRAM ceiling 15.98 GiB</text>
+<text x="196" y="21.0" class="glabel" text-anchor="end">UD-Q3_K_XL</text>
+<text x="196" y="36.0" class="gsub" text-anchor="end">32k ctx</text>
+<rect x="210" y="8" width="543.8" height="30" rx="3" fill="#4cc9f0"><title>UD-Q3_K_XL weights: 12.24 GiB</title></rect>
+<rect x="753.8" y="8" width="50.2" height="30" rx="0" fill="#5b6b7c"><title>KV cache + recurrent state + compute buffers: 1.13 GiB</title></rect>
+<text x="861.8" y="27.0" class="value">peak 14.49 · free 1.50</text>
+<text x="196" y="77.0" class="glabel" text-anchor="end">UD-IQ4_XS</text>
+<text x="196" y="92.0" class="gsub" text-anchor="end">32k ctx</text>
+<rect x="210" y="64" width="589.6" height="30" rx="3" fill="#f79256"><title>UD-IQ4_XS weights: 13.27 GiB</title></rect>
+<rect x="799.6" y="64" width="47.1" height="30" rx="0" fill="#5b6b7c"><title>KV cache + recurrent state + compute buffers: 1.06 GiB</title></rect>
+<text x="904.5" y="83.0" class="value">peak 15.45 · free 0.53</text>
+<text x="196" y="133.0" class="glabel" text-anchor="end">UD-IQ4_XS.gguf</text>
+<text x="196" y="148.0" class="gsub" text-anchor="end">16k ctx</text>
+<rect x="210" y="120" width="589.6" height="30" rx="3" fill="#f79256"><title>UD-IQ4_XS.gguf weights: 13.27 GiB</title></rect>
+<rect x="799.6" y="120" width="20.9" height="30" rx="0" fill="#5b6b7c"><title>KV cache + recurrent state + compute buffers: 0.47 GiB</title></rect>
+<text x="878.2" y="139.0" class="value">peak 14.86 · free 1.12</text>
+</svg>
+<p class="note">Colored segment = quantized weights; grey = q8_0 KV cache for the context + Gated-DeltaNet
+recurrent state + compute buffers. Red line = card total (15.98 GiB);
+desktop baseline ~0.82 GiB is included in every bar. Peak GTT (the
+spill-to-system-RAM proxy) was 0.188 GiB for both quants — no spill.</p></div>
+
+<div class="card"><h2>Quality (perplexity, lower is better)</h2>
+<svg viewBox="0 0 980 108" class="chart" role="img">
+<line x1="210.0" y1="8" x2="210.0" y2="82" class="grid"/>
+<text x="210.0" y="98" class="axis" text-anchor="middle">0.0</text>
+<line x1="352.0" y1="8" x2="352.0" y2="82" class="grid"/>
+<text x="352.0" y="98" class="axis" text-anchor="middle">1.7</text>
+<line x1="494.0" y1="8" x2="494.0" y2="82" class="grid"/>
+<text x="494.0" y="98" class="axis" text-anchor="middle">3.4</text>
+<line x1="636.0" y1="8" x2="636.0" y2="82" class="grid"/>
+<text x="636.0" y="98" class="axis" text-anchor="middle">5.2</text>
+<line x1="778.0" y1="8" x2="778.0" y2="82" class="grid"/>
+<text x="778.0" y="98" class="axis" text-anchor="middle">6.9</text>
+<line x1="920.0" y1="8" x2="920.0" y2="82" class="grid"/>
+<text x="920.0" y="98" class="axis" text-anchor="middle">8.6</text>
+<text x="196" y="35.0" class="glabel" text-anchor="end">Perplexity (12×4096 tokens, lower is better)</text>
+<rect x="210" y="8.0" width="624.3" height="20" rx="3" fill="#4cc9f0" class="bar"><title>UD-Q3_K_XL — Perplexity (12×4096 tokens, lower is better): 7.55 PPL (±0.12)</title></rect>
+<line x1="824.6" y1="18.0" x2="843.9" y2="18.0" class="whisker"/><line x1="843.9" y1="10.0" x2="843.9" y2="26.0" class="whisker"/>
+<text x="842.3" y="22.0" class="value">7.55</text>
+<rect x="210" y="32.0" width="581.7" height="20" rx="3" fill="#f79256" class="bar"><title>UD-IQ4_XS — Perplexity (12×4096 tokens, lower is better): 7.03 PPL (±0.11)</title></rect>
+<line x1="782.8" y1="42.0" x2="800.7" y2="42.0" class="whisker"/><line x1="800.7" y1="34.0" x2="800.7" y2="50.0" class="whisker"/>
+<text x="799.7" y="46.0" class="value">7.03</text>
+</svg>
+<p class="note">Identical 12×4096-token corpus slice, identical flags. IQ4_XS is
+6.8% lower — the extra bit of precision buys measurable quality.</p></div>
+
+<div class="card"><h2>Raw numbers</h2><table><thead><tr><th>metric</th><th>UD-Q3_K_XL</th><th>UD-IQ4_XS</th></tr></thead><tbody><tr><th>Quant</th><td>UD-Q3_K_XL</td><td>UD-IQ4_XS</td></tr><tr><th>File size</th><td>12.24 GiB (3.85 bpw)</td><td>13.27 GiB (4.17 bpw)</td></tr><tr><th>Prefill 512 @ empty</th><td>506.53 t/s</td><td>503.64 t/s</td></tr><tr><th>Prefill 512 @ 8k depth</th><td>441.96 t/s</td><td>442.34 t/s</td></tr><tr><th>Decode 128 @ empty</th><td>33.80 t/s</td><td>32.36 t/s</td></tr><tr><th>Decode 128 @ 8k depth</th><td>32.55 t/s</td><td>31.20 t/s</td></tr><tr><th>Perplexity</th><td>7.549 ± 0.117</td><td>7.035 ± 0.108</td></tr><tr><th>Peak VRAM @ 32k</th><td>14.49 GiB</td><td>15.45 GiB</td></tr><tr><th>Free VRAM at peak</th><td>1.50 GiB</td><td>0.53 GiB</td></tr><tr><th>Peak GTT (spill proxy)</th><td>0.188 GiB</td><td>0.188 GiB</td></tr><tr><th>Server ready (load)</th><td>31.6 s</td><td>38.1 s</td></tr><tr><th>25.2k-token prefill</th><td>59.1 s</td><td>59.2 s</td></tr><tr><th>Smoke tests</th><td>pass</td><td>pass</td></tr></tbody></table>
+<p class="note">llama-bench, both models interleaved in one invocation, 5 reps, 2 s delay, t=8 poll=0; two passes with reversed model order; mean of passes reported</p>
+<p class="note">llama-server --ctx-size 32768, q8_0 KV, ub 256, fa on, --n-gpu-layers 99, peak VRAM sampled at 0.25 s during an 18.7k-token recall request</p>
+<p class="note">llama-perplexity on the same ~12x4096-token corpus slice, identical flags</p></div>
+
+<div class="card"><h2>Published third-party numbers (context only — different models)</h2>
+<ul class='ref'><li><b>Qwen3.5 (analogue)</b> — <b>Q3_K_XL</b>: ppl=6.7245, kld_mean=0.0308 · <b>IQ4_XS</b>: ppl=6.6447, kld_mean=0.0235<br><span class="dim">different model size — direction only, not this 27B on this box — <code>https://unsloth.ai/docs/models/qwen3.5/gguf-benchmarks.md</code></span></li><li><b>Qwen3.8-Flash-Next 125B MoE (analogue)</b> — <b>Q3_K_XL</b>: top1_acc_pct=88.315, kld_mean=0.106504 · <b>IQ4_XS</b>: top1_acc_pct=89.554, kld_mean=0.08363<br><span class="dim">analogue model; shows the same direction (IQ4_XS more accurate) — <code>https://unsloth.ai/docs/models/qwen3.8-next.md</code></span></li></ul></div>
+
+<div class="card verdict"><h2>Verdict</h2>
+<p><b>Keep UD-Q3_K_XL as the default.</b> It leaves 1.50 GiB of free VRAM at 32k
+context versus 0.53 GiB for UD-IQ4_XS, and decodes
+4.4% faster — with prefill unchanged.</p>
+<p><b>Switch to UD-IQ4_XS when quality matters more than that margin</b> — it is
+6.8% better on perplexity — and either accept
+0.53 GiB of headroom at 32k, or run it at 16k context
+(14.86 GiB peak, 1.12 GiB free)
+if the desktop is busy. Below 0.7 GiB free, an amdgpu VRAM overflow would spill to system RAM, and this box
+only has 15 GiB of RAM to absorb that.</p></div>
+
+<p class="note">Generated by <code>build-report.py</code> from <code>bench-data.json</code>; the raw payload is
+embedded below for audit. Regenerate with <code>.venv/bin/python make-report-data.py &amp;&amp; .venv/bin/python build-report.py</code>.</p>
+<script id="bench-data" type="application/json">{"generated":"2026-09-16T23:35:41+00:00","host":{"gpu":"AMD Radeon RX 7800 XT (RADV NAVI32, gfx1101)","vram_GiB":15.98,"desktop_baseline_GiB":0.82,"ram_GiB":15,"cpu":"AMD Ryzen 7 3700X (8C/16T)","backend":"llama.cpp Vulkan (RADV / Mesa 26.2.2)","llama_cpp_commit":"fb27a52"},"protocol":{"throughput":"llama-bench, both models interleaved in one invocation, 5 reps, 2 s delay, t=8 poll=0; two passes with reversed model order; mean of passes reported","fit":"llama-server --ctx-size 32768, q8_0 KV, ub 256, fa on, --n-gpu-layers 99, peak VRAM sampled at 0.25 s during an 18.7k-token recall request","quality":"llama-perplexity on the same ~12x4096-token corpus slice, identical flags"},"quants":[{"tag":"q3kx","name":"UD-Q3_K_XL","size_GiB":12.24,"size_bytes":13146393504,"bpw":3.85,"throughput":{"pp512_d0":{"single_pass_t_s":null,"single_pass_stdev":null,"pass_values":[502.98,510.09],"mean_t_s":506.53,"half_range":3.55},"tg128_d0":{"single_pass_t_s":null,"single_pass_stdev":null,"pass_values":[33.83,33.78],"mean_t_s":33.8,"half_range":0.02},"pp512_d8192":{"single_pass_t_s":null,"single_pass_stdev":null,"pass_values":[442.31,441.61],"mean_t_s":441.96,"half_range":0.35},"tg128_d8192":{"single_pass_t_s":null,"single_pass_stdev":null,"pass_values":[32.56,32.55],"mean_t_s":32.55,"half_range":0.01}},"fit":{"baseline_vram":1200455680,"ready_s":31.6,"peak_vram":15555588096,"peak_gtt":202375168,"peak_vram_GiB":14.49,"free_at_peak_GiB":1.5,"over_baseline_GiB":13.37,"smoke_pass":true,"needle_prompt_tokens":25234,"needle_seconds":59.1},"smoke_output":["PASS  health endpoint ok — {'status': 'ok'}","PASS  thinking emits reasoning_content — 181 chars, 3.6s","PASS  answer correct (0.05) — '0.05'","PASS  tool_call emitted — [{\"type\": \"function\", \"function\": {\"name\": \"get_weather\", \"arguments\": \"{\\\"city\\\":\\\"Reykjavik\\\"}\"}, \"id\": \"3rwp563bdXMvvo0Fzb9IniFqP99EpXlg\"}]","PASS  tool args carry the city — {\"city\":\"Reykjavik\"}","note: ctx=32768, haystack=1201 lines","PASS  long-context needle recall — 25234 prompt tokens, 59.1s","","ALL PASS"],"perplexity":{"ppl":7.5489,"ppl_err":0.11695,"peak_vram_GiB":13.14}},{"tag":"iq4xs","name":"UD-IQ4_XS","size_GiB":13.27,"size_bytes":14252845984,"bpw":4.17,"throughput":{"pp512_d0":{"single_pass_t_s":null,"single_pass_stdev":null,"pass_values":[506.23,501.06],"mean_t_s":503.64,"half_range":2.59},"tg128_d0":{"single_pass_t_s":null,"single_pass_stdev":null,"pass_values":[32.36,32.35],"mean_t_s":32.36,"half_range":0.0},"pp512_d8192":{"single_pass_t_s":null,"single_pass_stdev":null,"pass_values":[442.45,442.22],"mean_t_s":442.34,"half_range":0.11},"tg128_d8192":{"single_pass_t_s":null,"single_pass_stdev":null,"pass_values":[31.21,31.18],"mean_t_s":31.2,"half_range":0.02}},"fit":{"baseline_vram":1200455680,"ready_s":38.1,"peak_vram":16590766080,"peak_gtt":202375168,"peak_vram_GiB":15.45,"free_at_peak_GiB":0.53,"over_baseline_GiB":14.33,"smoke_pass":true,"needle_prompt_tokens":25234,"needle_seconds":59.2},"smoke_output":["PASS  health endpoint ok — {'status': 'ok'}","PASS  thinking emits reasoning_content — 184 chars, 3.8s","PASS  answer correct (0.05) — '0.05'","PASS  tool_call emitted — [{\"type\": \"function\", \"function\": {\"name\": \"get_weather\", \"arguments\": \"{\\\"city\\\":\\\"Reykjavik\\\"}\"}, \"id\": \"NQpls05psY5LNVktFkQhrIcN0x1Vau34\"}]","PASS  tool args carry the city — {\"city\":\"Reykjavik\"}","note: ctx=32768, haystack=1201 lines","PASS  long-context needle recall — 25234 prompt tokens, 59.2s","","ALL PASS"],"perplexity":{"ppl":7.0347,"ppl_err":0.10842,"peak_vram_GiB":14.17}}],"extra_profiles":[{"tag":"iq4xs-16k","model":"Qwen3.8-27B-UD-IQ4_XS.gguf","ctx":16384,"size_GiB":13.27,"peak_vram_GiB":14.86,"free_at_peak_GiB":1.12,"baseline_vram_GiB":1.12,"net_GiB":13.74,"note":"same IQ4_XS weights, 16k context — the safe-headroom profile"}],"optimization":[{"label":"graphicsq","decode_t_s":52.66,"prefill_t_s":358.13,"peak_vram_GiB":15.64,"free_at_peak_GiB":0.34,"peak_gtt_GiB":0.229,"prompt_tokens":481,"predicted_tokens":512,"mtp":true,"ctx":8192,"quants":"IQ4_XS","env":["GGML_VK_ALLOW_GRAPHICS_QUEUE=1"]},{"label":"iq4-2k-q4-mtp","decode_t_s":50.11,"prefill_t_s":356.24,"peak_vram_GiB":15.53,"free_at_peak_GiB":0.46,"peak_gtt_GiB":0.223,"prompt_tokens":481,"predicted_tokens":512,"mtp":true,"ctx":2048,"quants":"IQ4_XS","env":[]},{"label":"iq4-2k-q4","decode_t_s":31.48,"prefill_t_s":393.5,"peak_vram_GiB":13.92,"free_at_peak_GiB":2.07,"peak_gtt_GiB":0.167,"prompt_tokens":481,"predicted_tokens":512,"mtp":false,"ctx":2048,"quants":"IQ4_XS","env":[]},{"label":"iq4-32k-q8","decode_t_s":31.57,"prefill_t_s":395.0,"peak_vram_GiB":14.96,"free_at_peak_GiB":1.02,"peak_gtt_GiB":0.182,"prompt_tokens":481,"predicted_tokens":512,"mtp":false,"ctx":32768,"quants":"IQ4_XS","env":[]},{"label":"mtp-8k","decode_t_s":50.29,"prefill_t_s":351.07,"peak_vram_GiB":15.66,"free_at_peak_GiB":0.33,"peak_gtt_GiB":0.229,"prompt_tokens":481,"predicted_tokens":512,"mtp":true,"ctx":8192,"quants":"IQ4_XS","env":[]},{"label":"nmax1","decode_t_s":46.3,"prefill_t_s":367.64,"peak_vram_GiB":15.35,"free_at_peak_GiB":0.63,"peak_gtt_GiB":0.227,"prompt_tokens":481,"predicted_tokens":512,"mtp":true,"ctx":8192,"quants":"IQ4_XS","env":[]},{"label":"nmax2","decode_t_s":51.71,"prefill_t_s":363.76,"peak_vram_GiB":15.5,"free_at_peak_GiB":0.49,"peak_gtt_GiB":0.228,"prompt_tokens":481,"predicted_tokens":512,"mtp":true,"ctx":8192,"quants":"IQ4_XS","env":[]},{"label":"q3k-16k-q4-mtp","decode_t_s":49.79,"prefill_t_s":367.5,"peak_vram_GiB":14.79,"free_at_peak_GiB":1.19,"peak_gtt_GiB":0.237,"prompt_tokens":481,"predicted_tokens":512,"mtp":true,"ctx":16384,"quants":"Q3_K_XL","env":[]},{"label":"q8kv","decode_t_s":48.46,"prefill_t_s":367.65,"peak_vram_GiB":15.77,"free_at_peak_GiB":0.21,"peak_gtt_GiB":0.229,"prompt_tokens":481,"predicted_tokens":512,"mtp":true,"ctx":8192,"quants":"IQ4_XS","env":[]},{"label":"t4","decode_t_s":47.04,"prefill_t_s":367.83,"peak_vram_GiB":15.66,"free_at_peak_GiB":0.33,"peak_gtt_GiB":0.229,"prompt_tokens":481,"predicted_tokens":512,"mtp":true,"ctx":8192,"quants":"IQ4_XS","env":[]},{"label":"xferq","decode_t_s":50.58,"prefill_t_s":367.02,"peak_vram_GiB":15.64,"free_at_peak_GiB":0.34,"peak_gtt_GiB":0.229,"prompt_tokens":481,"predicted_tokens":512,"mtp":true,"ctx":8192,"quants":"IQ4_XS","env":["GGML_VK_ASYNC_USE_TRANSFER_QUEUE=1"]}],"target_run":{"source":"https://www.localmaxxing.com/en/hardware/DISCRETE_GPU%3Arx%207800%20xt?name=RX+7800+XT&run=cmt0nfmo00f1jms01zkdjkvc7","decode_t_s":28.0,"prefill_t_s":500.0,"quantization":"Unsloth-Dynamic-IQ4_XS","engine":"llama.cpp","context":2048,"prompt_tokens":512,"output_tokens":512,"gpu":"RX 7800 XT","cpu":"Ryzen 7 7700","ram_Gb":32,"os":"CachyOS","flags":"-c 154000 -b 2048 -ub 256 -fa on -ctk q4_0 -ctv q4_0 --parallel 1"},"reference":[{"source":"https://unsloth.ai/docs/models/qwen3.5/gguf-benchmarks.md","model":"Qwen3.5 (analogue)","q3_k_xl":{"ppl":6.7245,"kld_mean":0.0308},"iq4_xs":{"ppl":6.6447,"kld_mean":0.0235},"note":"different model size — direction only, not this 27B on this box"},{"source":"https://unsloth.ai/docs/models/qwen3.8-next.md","model":"Qwen3.8-Flash-Next 125B MoE (analogue)","q3_k_xl":{"top1_acc_pct":88.315,"kld_mean":0.106504},"iq4_xs":{"top1_acc_pct":89.554,"kld_mean":0.08363},"note":"analogue model; shows the same direction (IQ4_XS more accurate)"}]}</script>
+</main></body></html>

@@ -1,0 +1,26 @@
+{
+  "label": "r2-iq4-8k-q4",
+  "ready_s": 21.6,
+  "prefill_t_s": 420.4,
+  "decode_t_s": 31.59,
+  "prefill_all": [
+    418.8,
+    420.4,
+    425.9
+  ],
+  "decode_all": [
+    31.1,
+    31.6,
+    31.6
+  ],
+  "prompt_tokens": 840,
+  "predicted_tokens": 512,
+  "peak_vram_GiB": 14.03,
+  "free_at_peak_GiB": 1.96,
+  "peak_gtt_GiB": 0.18,
+  "gtt_final_GiB": 0.17,
+  "samples": 1157,
+  "elapsed_s": 80.4,
+  "cmd": "--model models/Qwen3.8-27B-UD-IQ4_XS.gguf --n-gpu-layers 99 --ctx-size 8192 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --ubatch-size 256 --batch-size 2048 --parallel 1 --host 127.0.0.1 --port 8080",
+  "env": []
+}

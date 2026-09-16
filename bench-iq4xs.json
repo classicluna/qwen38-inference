@@ -1,0 +1,44 @@
+{
+  "tag": "iq4xs",
+  "model": "Qwen3.8-27B-UD-IQ4_XS.gguf",
+  "size_bytes": 14252845984,
+  "size_GiB": 13.27,
+  "vram_total_GiB": 15.98,
+  "baseline_vram_GiB": 0.89,
+  "throughput": {
+    "parse_error": "no_op_offload\": 0,\n    \"no_host\": false,\n    \"fit_target\": 0,\n    \"fit_min_ctx\": 0,\n    \"n_prompt\": 0,\n    \"n_gen\": 128,\n    \"n_depth\": 8192,\n    \"test_time\": \"2026-09-16T21:33:51Z\",\n    \"avg_ns\": 4102891249,\n    \"stddev_ns\": 10977720,\n    \"avg_ts\": 31.197661,\n    \"stddev_ts\": 0.083347,\n    \"samples_ns\": [ 4115528752, 4097427177, 4095717818 ],\n    \"samples_ts\": [ 31.1017, 31.2391, 31.2522 ]\n  }\n]\n"
+  },
+  "bench_peak_vram_GiB": 14.26,
+  "fit": {
+    "baseline_vram": 1181908992,
+    "ready_s": 24.1,
+    "peak_vram": 16570064896,
+    "peak_gtt": 245813248,
+    "peak_vram_GiB": 15.43,
+    "free_at_peak_GiB": 0.55,
+    "over_baseline_GiB": 14.33,
+    "smoke_pass": true,
+    "needle_prompt_tokens": 18742,
+    "needle_seconds": 42.2,
+    "smoke_output": [
+      "PASS  health endpoint ok \u2014 {'status': 'ok'}",
+      "PASS  thinking emits reasoning_content \u2014 184 chars, 3.7s",
+      "PASS  answer correct (0.05) \u2014 '0.05'",
+      "PASS  tool_call emitted \u2014 [{\"type\": \"function\", \"function\": {\"name\": \"get_weather\", \"arguments\": \"{\\\"city\\\":\\\"Reykjavik\\\"}\"}, \"id\": \"XmaAmFrXsJb3EsEon8UdaPdz8C6QUW2w\"}]",
+      "PASS  tool args carry the city \u2014 {\"city\":\"Reykjavik\"}",
+      "PASS  long-context needle recall \u2014 18742 prompt tokens, 42.2s",
+      "",
+      "ALL PASS"
+    ]
+  },
+  "perplexity": {
+    "ppl": 7.0347,
+    "ppl_err": 0.10842,
+    "peak_vram_GiB": 14.17,
+    "tail": [
+      "0.45.386.773 I perplexity: 10.24 seconds per pass - ETA 2.03 minutes",
+      "[1]8.1185,[2]7.8478,[3]5.5876,[4]5.7003,[5]5.6487,[6]5.6755,[7]5.8601,[8]6.1796,[9]6.3918,[10]6.6399,[11]6.8770,[12]7.0347,",
+      "2.23.982.091 I Final estimate: PPL = 7.0347 +/- 0.10842"
+    ]
+  }
+}
