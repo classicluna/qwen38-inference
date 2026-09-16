@@ -171,6 +171,9 @@ MTP=models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf REASONING_EFFORT=low ./run-server.sh
 - Reliability: 9/9 chat requests healthy (6 instruct @ temp 0.7 thinking-off, 3 thinking @ temp 1.0).
   The stray 1-token completions in benchmarking come from raw `/completion` with synthetic filler
   prompts (the model EOSes on them), not from the chat endpoint.
+- **`--parallel 1` is load-bearing** (`run-server.sh` default). With llama-server's default 4 slots
+  the identical config allocates 15.76 GiB and spills into GTT (1.44 GiB), because every slot carries
+  its own graph/state; at 1 slot it idles at 14.84 GiB with GTT ~0.5 GiB.
 - Not reboot-persistent; a systemd user unit is the follow-up if this becomes the daily driver.
 
 ## Phases

@@ -25,6 +25,7 @@ args=(
   --cache-type-v "${KVTYPE:-q8_0}"
   --ubatch-size "$UB"
   --batch-size 2048
+  --parallel "${SLOTS:-1}"
   --jinja
   --chat-template-kwargs "{\"reasoning_effort\":\"${REASONING_EFFORT:-medium}\"}"
   --host 127.0.0.1
