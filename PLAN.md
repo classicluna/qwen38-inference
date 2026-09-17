@@ -149,31 +149,55 @@ OMP ships a **built-in keyless `llama.cpp` provider**, auto-discovered at `LLAMA
 `http://127.0.0.1:8080`. No `models.yml` entry and no `config.yml` change are needed — the server
 just has to be up when OMP starts.
 
-Agent profile (chosen for headroom at usable context):
+Agent profile — **superseded 2026-09-16 by the "usable agent profile" section below** (Q3_K_XL at 24k
+turned out to be the wrong trade: 3-bit quality plus a context too small for OMP sessions).
 
 | config | peak VRAM | free | prefill | decode |
 |---|---|---|---|---|
-| **Q3_K_XL @24k ctx + MTP + q8_0 KV** | 15.18 GiB | **0.80** | 372.8 t/s | **47.3 t/s** |
+| Q3_K_XL @24k ctx + MTP + q8_0 KV | 15.18 GiB | 0.80 | 372.8 t/s | 47.3 t/s |
 | IQ4_XS @16k ctx + MTP + q8_0 KV | 15.89 GiB | 0.10 ❌ | 366.6 t/s | 47.8 t/s |
 
-Q3_K_XL is the better agent quant despite lower standalone quality: it is 1 GiB smaller, so it buys
-8k more context *and* 0.8 GiB more headroom than IQ4_XS at the same speed.
+### Usable agent profile (2026-09-16, after first real session)
+
+The first real OMP session was unusable and the reasons were measurable, not vibes:
+
+1. **xhigh thinking ate the entire turn.** A capped probe returned `completion=300, reasoning=783
+   chars, content=0` — every token went to the scratchpad. OMP's status line averages *content*
+   tokens over wall time, so a thinking-heavy 27B reads as ~1 tok/s even while the engine decodes at
+   29 t/s. Fixed with `--reasoning-budget 0` (hard cap server-side; it overrides whatever level the
+   client asks for). Verified: `reasoning_chars=0, content=283`.
+2. **24k context is too small for OMP.** A session hit 74% immediately and compaction looped
+   ("the most recent turn alone is too large to reduce further"). Raised to **48k**.
+3. **4 slots spilled** (fixed separately below by `--parallel 1`).
+
+Current profile: **IQ4_XS, 48k ctx, q8_0 KV, 1 slot, thinking off** — the quality quant, not the
+small one.
 
 ```bash
-CTX=24576 MODEL=models/Qwen3.8-27B-UD-Q3_K_XL.gguf \
-MTP=models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf REASONING_EFFORT=low ./run-server.sh
+CTX=49152 MODEL=models/Qwen3.8-27B-UD-IQ4_XS.gguf REASONING_BUDGET=0 ./run-server.sh
 ```
 
-- OMP lists it as `llama.cpp/qwen3.8-27b` with the **real** context (25K) and thinking levels
+Measured on this config:
+
+| metric | value |
+|---|---|
+| peak VRAM (30k-token prompt) | 15.43 GiB → 0.55 GiB free, GTT 0.28 GiB (no spill) |
+| prefill | 414–456 t/s (29.8k prompt = 71.8 s, paid **once** per prefix) |
+| decode | 26.7–28.8 t/s |
+| prompt cache | re-sending a 29.8k prompt processed **4 tokens** (0.2 s) |
+| agent tool use | `omp -p "Read PLAN.md…"` → correct answer after a real tool call, 1m08s |
+
+Knobs if it still bites: `CTX=40960` (+0.25 GiB headroom), `REASONING_BUDGET=1024` to allow a bounded
+scratchpad, `SLOTS`, `KVTYPE`.
+
+- OMP lists it as `llama.cpp/qwen3.8-27b` with the **real** context (49K) and thinking levels
   (`low, medium, xhigh`) auto-detected; switch in-session with `/model llama.cpp/qwen3.8-27b`.
-- End-to-end verified: `omp -p "Reply with exactly: LOCAL OK" --model llama.cpp/qwen3.8-27b --no-session`
-  → `LOCAL OK` in 22.7 s.
-- Reliability: 9/9 chat requests healthy (6 instruct @ temp 0.7 thinking-off, 3 thinking @ temp 1.0).
-  The stray 1-token completions in benchmarking come from raw `/completion` with synthetic filler
-  prompts (the model EOSes on them), not from the chat endpoint.
 - **`--parallel 1` is load-bearing** (`run-server.sh` default). With llama-server's default 4 slots
   the identical config allocates 15.76 GiB and spills into GTT (1.44 GiB), because every slot carries
   its own graph/state; at 1 slot it idles at 14.84 GiB with GTT ~0.5 GiB.
+- Prefill is the remaining cost: ~70 s per 30k tokens, so a *fresh* prefix is slow; cached prefixes
+  are nearly free. Anything that invalidates the prefix (session start, compaction, changed system
+  prompt) pays it again.
 - Not reboot-persistent; a systemd user unit is the follow-up if this becomes the daily driver.
 
 ## Phases

@@ -32,6 +32,9 @@ args=(
   --port "$PORT"
   --metrics
 )
+# Optional: hard cap on thinking tokens (0 = no thinking at all). Guards against a client
+# requesting xhigh reasoning and burning minutes per turn on a 27B local model.
+[ -n "${REASONING_BUDGET:-}" ] && args+=( --reasoning-budget "$REASONING_BUDGET" )
 [ -n "$MMPROJ" ] && args+=( --mmproj "$MMPROJ" )
 # Optional: encode images on CPU instead of GPU (frees ~0.9 GiB VRAM, slower vision prefill).
 [ -n "${NO_MMPROJ_OFFLOAD:-}" ] && args+=( --no-mmproj-offload )
