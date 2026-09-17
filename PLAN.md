@@ -164,17 +164,17 @@ The first real OMP session was unusable and the reasons were measurable, not vib
 1. **xhigh thinking ate the entire turn.** A capped probe returned `completion=300, reasoning=783
    chars, content=0` — every token went to the scratchpad. OMP's status line averages *content*
    tokens over wall time, so a thinking-heavy 27B reads as ~1 tok/s even while the engine decodes at
-   29 t/s. Fixed with `--reasoning-budget 0` (hard cap server-side; it overrides whatever level the
-   client asks for). Verified: `reasoning_chars=0, content=283`.
+   29 t/s. Fixed by capping thinking server-side with `--reasoning-budget` — first `0` to prove the
+   diagnosis, then `1024` as the shipped setting now that the failure mode was understood.
 2. **24k context is too small for OMP.** A session hit 74% immediately and compaction looped
    ("the most recent turn alone is too large to reduce further"). Raised to **48k**.
 3. **4 slots spilled** (fixed separately below by `--parallel 1`).
 
-Current profile: **IQ4_XS, 48k ctx, q8_0 KV, 1 slot, thinking off** — the quality quant, not the
-small one.
+Current profile: **IQ4_XS, 48k ctx, q8_0 KV, 1 slot, bounded thinking (1024 tokens)** — the quality
+quant, not the small one.
 
 ```bash
-CTX=49152 MODEL=models/Qwen3.8-27B-UD-IQ4_XS.gguf REASONING_BUDGET=0 ./run-server.sh
+CTX=49152 MODEL=models/Qwen3.8-27B-UD-IQ4_XS.gguf REASONING_BUDGET=1024 ./run-server.sh
 ```
 
 Measured on this config:
@@ -187,8 +187,8 @@ Measured on this config:
 | prompt cache | re-sending a 29.8k prompt processed **4 tokens** (0.2 s) |
 | agent tool use | `omp -p "Read PLAN.md…"` → correct answer after a real tool call, 1m08s |
 
-Knobs if it still bites: `CTX=40960` (+0.25 GiB headroom), `REASONING_BUDGET=1024` to allow a bounded
-scratchpad, `SLOTS`, `KVTYPE`.
+Knobs if it still bites: `CTX=40960` (+0.25 GiB headroom), `REASONING_BUDGET=0` to kill thinking
+entirely or a larger value for more room, `SLOTS`, `KVTYPE`.
 
 - OMP lists it as `llama.cpp/qwen3.8-27b` with the **real** context (49K) and thinking levels
   (`low, medium, xhigh`) auto-detected; switch in-session with `/model llama.cpp/qwen3.8-27b`.
