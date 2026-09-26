@@ -13,3 +13,6 @@ models/
 
 __pycache__/
 *.pyc
+toolchain/*
+!toolchain/build.sh
+results/kernel/prof*/
