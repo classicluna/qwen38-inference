@@ -52,7 +52,7 @@ for label, bindir, model, env in CONFIGS:
                           "--host", "127.0.0.1"], env={**os.environ, "LD_LIBRARY_PATH": LIB, **env},
                          stdout=subprocess.DEVNULL, stderr=open(ROOT / f"results/kernel/equiv-{label}.log", "w"))
     try:
-        for _ in range(300):
+        for _ in range(900):
             try:
                 urllib.request.urlopen("http://127.0.0.1:8090/health", timeout=2)
                 break

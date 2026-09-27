@@ -1,0 +1,33 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+___________________________ test_window_keeps_latest ___________________________
+
+    def test_window_keeps_latest():
+        w = Window(3)
+        for x in range(10):
+            w.push(x)
+>       assert w.samples == [7, 8, 9]
+E       assert deque([7, 8, 9]) == [7, 8, 9]
+E         
+E         Full diff:
+E         - [
+E         + deque(maxlen=3, [
+E               7,
+E               8,
+E               9,
+E         - ]
+E         + ])
+
+tests_hidden/test_hidden.py:9: AssertionError
+=========================== short test summary info ============================
+FAILED tests_hidden/test_hidden.py::test_window_keeps_latest - assert deque([7, 8, 9]) == [7, 8, 9]
+  
+  Full diff:
+  - [
+  + deque(maxlen=3, [
+        7,
+        8,
+        9,
+  - ]
+  + ])
+1 failed, 1 passed in 0.01s

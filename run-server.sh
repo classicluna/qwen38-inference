@@ -1,44 +1,51 @@
 #!/usr/bin/env bash
-# Bonsai 2 27B (PrismML) on RX 7800 XT (16 GB) — ROCm PTQ1_0 profile on the patched fork
-# (branch bonsai-kern in /home/evank/llama-prism-kern, built by `COMPILER=amdclang toolchain/build.sh build-amd`; see
-# results/kernel/NOTES.md). vs official b10685 + PQ2_0: decode 46.9 -> 51.8 t/s @d0,
-# 39.8 -> 43.1 @32k; prefill 283 -> 432 t/s; weights 1.26 GB smaller; identical perplexity.
-# LLAMA_BIN_DIR=/home/evank/rocm-bin MODEL=models/Ternary-Bonsai-2-27B-PQ2_0.gguf reverts.
+# Local model server for OMP on RX 7800 XT (16 GB): llama-server behind telemetry/tracker.py on :8080.
 #
-# 2026-09-18 depth-campaign findings (results/20260918-fast/):
-#   * KV quantization COSTS throughput on this build: at 32k depth, decode is 39.4 t/s with f16 KV
-#     vs 19.5 t/s with q4_0 and 14.2 t/s with q8_0; prefill 207.5 / 169.7 / 53.7 t/s respectively.
-#     f16 KV is ~66 KiB/token, so the context that fits in 16 GiB is much smaller than with q4_0.
-#   * Measured footprints: f16 KV @65k ctx + weights ≈ 13.1 GiB (llama-bench); leaving room for the
-#     vision projector and compute buffers. 98k+ needs MMPROJ unset.
-#   * Defaults below therefore use f16 KV at 65536 ctx. To get 262k back, run with
-#     `CTX=262144 KVTYPE=q4_0` and accept ~2x slower decode at depth.
-#   * DFlash2 draft heads (ProCreations/z-lab) do NOT load in this fork build (needs DFlash2 runtime).
+# PROFILE=qwen (default) — Qwen3.8-27B UD-IQ4_XS, the agent daily driver (8/8 vs Bonsai 7/8 on
+#   agent-bench, half the wall time; results/agent-bench/). Settings: results/qwen-rocm/NOTES.md.
+# PROFILE=bonsai — Bonsai 2 27B PTQ1_0 on the patched ROCm fork (branch bonsai-kern, built by
+#   `COMPILER=amdclang toolchain/build.sh build-amd`): 51.8 t/s decode, 511 t/s prefill, 80k ctx + vision
+#   + MTP (results/kernel/NOTES.md, results/mtp/). Faster chat/long-context reader, weaker agent.
+#
+# Every setting below is an env override (MODEL, CTX, KVTYPE, MMPROJ, MTP, LLAMA_BIN_DIR, ...).
 set -euo pipefail
 cd "$(dirname "$0")"
-# Binary directory: override with LLAMA_BIN_DIR (e.g. /home/evank/llama-prism-src/build-noall/bin
-# for a from-source build; those binaries carry their own RUNPATH, so only the dir changes).
-ROCM_DIR="${LLAMA_BIN_DIR:-/home/evank/llama-prism-kern/build-amd/bin}"
-if [ -x "$ROCM_DIR/llama-server" ] && [ -d "/home/evank/rocm-runtime/opt/rocm/lib" ]; then
-  BIN="$ROCM_DIR/llama-server"
-  export LD_LIBRARY_PATH="/home/evank/rocm-runtime/opt/rocm/lib:/opt/rocm/lib:${LD_LIBRARY_PATH:-}"
-  MODEL_DEFAULT="models/Ternary-Bonsai-2-27B-PTQ1_0.gguf"
-else
-  BIN="llama.cpp/build/bin/llama-server"
-  MODEL_DEFAULT="models/Ternary-Bonsai-2-27B-PTQ1_0.gguf"
-fi
-MODEL="${MODEL:-$MODEL_DEFAULT}"
-# Context default: with f16 KV + vision projector this leaves ~1.5 GiB of VRAM headroom on 16 GiB.
-# Omitting --ctx-size makes the server auto-fit (measured 114432, only ~0.4 GiB headroom).
-CTX="${CTX:-81920}"
+PROFILE="${PROFILE:-qwen}"
+ROCM_BIN=/home/evank/llama-prism-kern/build-amd/bin
+case "$PROFILE" in
+  qwen)
+    # Vulkan beats the patched ROCm build on the agent workload (~90 % decode time): decode 30.0 vs 26.9 t/s
+    # short, 26.3 vs 22.7 @40k; ROCm only wins prefill (+10-15 %). q4_0 KV decodes as fast as q8_0 on Vulkan
+    # and buys 64k ctx (peak 14.45 GiB). LLAMA_BIN_DIR=$ROCM_BIN switches to ROCm (results/qwen-rocm/NOTES.md).
+    : "${LLAMA_BIN_DIR:=llama.cpp/build/bin}"
+    : "${MODEL:=models/Qwen3.8-27B-UD-IQ4_XS.gguf}"
+    : "${ALIAS:=qwen3.8-27b}"
+    : "${CTX:=65536}"
+    : "${KVTYPE:=q4_0}"
+    : "${MMPROJ:=}"
+    : "${MTP:=}"
+    : "${REASONING_EFFORT:=low}"
+    ;;
+  bonsai)
+    : "${LLAMA_BIN_DIR:=$ROCM_BIN}"
+    : "${MODEL:=models/Ternary-Bonsai-2-27B-PTQ1_0.gguf}"
+    : "${ALIAS:=bonsai-27b,bonsai-2-27b,ternary-bonsai-27b}"
+    # f16 KV is the fast path for Bonsai on ROCm; 80k ctx + vision + MTP peaks 14.61 GiB (98k: 15.70, too tight).
+    : "${CTX:=81920}"
+    : "${KVTYPE:=f16}"
+    : "${MMPROJ=models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf}"
+    # MTP n-max 1: real chat 51.0 -> 53.6 t/s; n2 50.2, n3 44.3 (results/mtp/chat-ab.txt).
+    : "${MTP=models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf}"
+    : "${REASONING_EFFORT:=medium}"
+    ;;
+  *) echo "unknown PROFILE=$PROFILE (qwen|bonsai)" >&2; exit 1 ;;
+esac
+BIN="$LLAMA_BIN_DIR/llama-server"
+export LD_LIBRARY_PATH="/home/evank/rocm-runtime/opt/rocm/lib:/opt/rocm/lib:${LD_LIBRARY_PATH:-}"
 UB="${UB:-256}"
 PUBLIC_PORT="${PORT:-8080}"
 BACKEND_PORT="${BACKEND_PORT:-8085}"
-# f16 KV is the fast path on ROCm (see header); q4_0 only for 262k contexts.
-KVTYPE="${KVTYPE:-f16}"
 export KVTYPE
-# Optional: vision encoder (0.60 GiB Q8_0) — set MMPROJ to enable.
-MMPROJ="${MMPROJ:-models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf}"
 
 args=(
   --model "$MODEL"
@@ -71,10 +78,7 @@ BUDGET_MESSAGE="${BUDGET_MESSAGE-$'\n\nTime is up. I must stop deliberating and 
 [ -n "$MMPROJ" ] && args+=( --mmproj "$MMPROJ" )
 # Optional: encode images on CPU instead of GPU (frees ~0.9 GiB VRAM, slower vision prefill).
 [ -n "${NO_MMPROJ_OFFLOAD:-}" ] && args+=( --no-mmproj-offload )
-# MTP speculation, n-max 1: real chat (thinking, default sampling) 51.0 -> 53.6 t/s; n2 50.2, n3 44.3
-# (results/mtp/chat-ab.txt). Greedy-only benches favoured n3 (+32 % prose) but acceptance halves when sampling.
-# With vision: 80k ctx peaks 14.61 GiB (98k peaks 15.70 — too tight). MTP= disables.
-MTP="${MTP-models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf}"
+# Speculative decoding with the Qwen3.8 MTP head (also valid for Bonsai, a Qwen3.8 derivative).
 [ -n "$MTP" ] && args+=( --spec-draft-model "$MTP" --spec-type draft-mtp --spec-draft-n-max "${MTP_N:-1}" )
 
 "$BIN" "${args[@]}" &

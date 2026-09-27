@@ -1,0 +1,23 @@
+diff --git i/metrics/window.py w/metrics/window.py
+index c30fff6..b8c3538 100644
+--- i/metrics/window.py
++++ w/metrics/window.py
+@@ -1,14 +1,15 @@
++from collections import deque
++
++
+ class Window:
+     """Keeps the last `size` samples."""
+ 
+     def __init__(self, size):
+         self.size = size
+-        self.samples = []
++        self.samples = deque(maxlen=size)
+ 
+     def push(self, x):
+         self.samples.append(x)
+-        if len(self.samples) > self.size:
+-            self.samples.pop()
+ 
+     def mean(self):
+         return sum(self.samples) / len(self.samples) if self.samples else 0.0

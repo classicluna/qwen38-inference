@@ -1,0 +1,2 @@
+== qwen-vk: 7/8 passed, 12.2 min total
+== qwen-rocm: 7/8 passed, 13.6 min total

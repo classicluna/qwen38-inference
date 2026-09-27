@@ -1,0 +1,30 @@
+diff --git i/cfg/parser.py w/cfg/parser.py
+index 2793167..9ff9176 100644
+--- i/cfg/parser.py
++++ w/cfg/parser.py
+@@ -18,6 +18,23 @@ def parse(text):
+             sec = line[1:-1]
+             out.setdefault(sec, {})
+             continue
+-        k, v = line.split("=")
+-        out[sec].setdefault(k.strip(), v.strip())
++        line = _strip_inline_comment(line)
++        key, _sep, value = line.partition("=")
++        out[sec][key.strip().lower()] = _unquote(value.strip())
+     return out
++
++
++def _strip_inline_comment(line):
++    in_quotes = False
++    for i, ch in enumerate(line):
++        if ch == '"':
++            in_quotes = not in_quotes
++        elif not in_quotes and ch in "#;" and i > 0 and line[i - 1] == " ":
++            return line[:i]
++    return line
++
++
++def _unquote(value):
++    if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
++        return value[1:-1]
++    return value

@@ -1,0 +1,15 @@
+diff --git i/wildlife/stats.py w/wildlife/stats.py
+index 8618f22..d27b709 100644
+--- i/wildlife/stats.py
++++ w/wildlife/stats.py
+@@ -1,8 +1,8 @@
+-from datetime import datetime, timedelta
++from datetime import datetime, timedelta, timezone
+ 
+ 
+ def _cutoff(hours):
+-    return datetime.now() - timedelta(hours=hours)
++    return datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=hours)
+ 
+ 
+ def recent_count(store, hours=24, now=None):

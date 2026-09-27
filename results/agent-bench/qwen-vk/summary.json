@@ -1,0 +1,66 @@
+[
+ {
+  "task": "01-utc-window",
+  "pass": true,
+  "wall_s": 73.2,
+  "tool_events": 29,
+  "rc": 0,
+  "changed": 3
+ },
+ {
+  "task": "02-pagination",
+  "pass": true,
+  "wall_s": 125.8,
+  "tool_events": 41,
+  "rc": 0,
+  "changed": 4
+ },
+ {
+  "task": "03-implement-slugify",
+  "pass": true,
+  "wall_s": 83.5,
+  "tool_events": 31,
+  "rc": 0,
+  "changed": 3
+ },
+ {
+  "task": "04-rename-api",
+  "pass": true,
+  "wall_s": 47.7,
+  "tool_events": 27,
+  "rc": 0,
+  "changed": 7
+ },
+ {
+  "task": "05-cli-flag",
+  "pass": true,
+  "wall_s": 125.0,
+  "tool_events": 45,
+  "rc": 0,
+  "changed": 4
+ },
+ {
+  "task": "06-mutable-default",
+  "pass": false,
+  "wall_s": 46.4,
+  "tool_events": 27,
+  "rc": 0,
+  "changed": 3
+ },
+ {
+  "task": "07-config-parser",
+  "pass": true,
+  "wall_s": 186.1,
+  "tool_events": 51,
+  "rc": 0,
+  "changed": 4
+ },
+ {
+  "task": "08-cross-module",
+  "pass": true,
+  "wall_s": 44.3,
+  "tool_events": 25,
+  "rc": 0,
+  "changed": 3
+ }
+]

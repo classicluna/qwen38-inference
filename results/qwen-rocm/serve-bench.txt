@@ -1,0 +1,49 @@
+vk-q8-48k           508 tok  ttft   1.46s  lat  10.00s  prefill  361.1  out  29.9 t/s  e2e  25.6
+vk-q8-48k          4161 tok  ttft   8.95s  lat  17.61s  prefill  466.7  out  29.4 t/s  e2e  14.5
+vk-q8-48k         16340 tok  ttft  37.93s  lat  46.96s  prefill  431.3  out  28.3 t/s  e2e   5.5
+vk-q8-48k         40083 tok  ttft 110.58s  lat 120.30s  prefill  362.7  out  26.2 t/s  e2e   2.1
+vk-q8-48k        peak VRAM 14.91 GiB (free 1.07), GTT 0.81 GiB
+Traceback (most recent call last):
+  File "/home/evank/dev/inference/results/qwen-rocm/serve-bench.py", line 128, in <module>
+    res[label] = run(label)
+                 ~~~^^^^^^^
+  File "/home/evank/dev/inference/results/qwen-rocm/serve-bench.py", line 92, in run
+    with urllib.request.urlopen(req, timeout=1800) as r:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/urllib/request.py", line 187, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/urllib/request.py", line 493, in open
+    response = meth(req, response)
+  File "/usr/lib/python3.14/urllib/request.py", line 602, in http_response
+    response = self.parent.error(
+        'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python3.14/urllib/request.py", line 531, in error
+    return self._call_chain(*args)
+           ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/usr/lib/python3.14/urllib/request.py", line 464, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python3.14/urllib/request.py", line 611, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 503: Service Unavailable
+rocm-q8-48k         508 tok  ttft   1.26s  lat  10.77s  prefill  415.6  out  26.8 t/s  e2e  23.8
+rocm-q8-48k        4161 tok  ttft   7.77s  lat  17.29s  prefill  537.6  out  26.8 t/s  e2e  14.8
+rocm-q8-48k       16340 tok  ttft  33.56s  lat  43.67s  prefill  487.5  out  25.2 t/s  e2e   5.9
+rocm-q8-48k       40083 tok  ttft 100.39s  lat 111.55s  prefill  399.6  out  22.9 t/s  e2e   2.3
+rocm-q8-48k      peak VRAM 15.53 GiB (free 0.45), GTT 0.78 GiB
+rocm-q4-48k         508 tok  ttft   1.22s  lat  10.70s  prefill  433.2  out  26.9 t/s  e2e  23.9
+rocm-q4-48k        4161 tok  ttft   7.75s  lat  17.36s  prefill  539.3  out  26.6 t/s  e2e  14.8
+rocm-q4-48k       16340 tok  ttft  33.59s  lat  43.72s  prefill  487.2  out  25.2 t/s  e2e   5.9
+rocm-q4-48k       40083 tok  ttft 100.24s  lat 111.48s  prefill  400.2  out  22.7 t/s  e2e   2.3
+rocm-q4-48k      peak VRAM 14.83 GiB (free 1.15), GTT 0.78 GiB
+rocm-q4-64k         508 tok  ttft   1.26s  lat  10.73s  prefill  417.1  out  26.9 t/s  e2e  23.9
+rocm-q4-64k        4161 tok  ttft   7.75s  lat  17.31s  prefill  539.1  out  26.7 t/s  e2e  14.8
+rocm-q4-64k       16340 tok  ttft  33.63s  lat  43.74s  prefill  486.5  out  25.2 t/s  e2e   5.9
+rocm-q4-64k       40083 tok  ttft 100.19s  lat 111.41s  prefill  400.4  out  22.7 t/s  e2e   2.3
+rocm-q4-64k      peak VRAM 15.18 GiB (free 0.80), GTT 0.78 GiB
+urllib.error.HTTPError: HTTP Error 503: Service Unavailable
+vk-q4-64k           508 tok  ttft   1.56s  lat  10.06s  prefill  344.1  out  30.0 t/s  e2e  25.5
+vk-q4-64k          4161 tok  ttft   8.93s  lat  17.57s  prefill  467.5  out  29.5 t/s  e2e  14.6
+vk-q4-64k         16340 tok  ttft  38.07s  lat  47.07s  prefill  429.7  out  28.3 t/s  e2e   5.4
+vk-q4-64k         40083 tok  ttft 111.94s  lat 121.65s  prefill  358.3  out  26.3 t/s  e2e   2.1
+vk-q4-64k        peak VRAM 14.45 GiB (free 1.53), GTT 0.82 GiB

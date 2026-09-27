@@ -1,0 +1,55 @@
+diff --git i/tests/test_stats.py w/tests/test_stats.py
+index 59ee600..9068ca0 100644
+--- i/tests/test_stats.py
++++ w/tests/test_stats.py
+@@ -1,4 +1,8 @@
+-from datetime import datetime, timedelta
++import os
++import time
++from datetime import datetime, timedelta, timezone
++import pytest
++
+ from wildlife.store import Store
+ from wildlife.stats import recent_count
+ 
+@@ -9,3 +13,24 @@ def test_explicit_now():
+     s.add("zebra", now - timedelta(hours=1))
+     s.add("zebra", now - timedelta(hours=30))
+     assert recent_count(s, now=now) == 1
++
++
++@pytest.mark.skipif(not hasattr(time, "tzset"), reason="tzset unavailable")
++def test_default_now_nonutc_timezone():
++    """Default cutoff must use UTC even when the server's local TZ is not UTC."""
++    saved = os.environ.get("TZ")
++    os.environ["TZ"] = "CET-1"  # UTC+1
++    time.tzset()
++    try:
++        s = Store()
++        now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
++        s.add("deer", now_utc - timedelta(hours=1))       # inside window
++        s.add("deer", now_utc - timedelta(hours=23.5))    # inside window (caught by +1h skew)
++        s.add("deer", now_utc - timedelta(hours=30))      # outside window
++        assert recent_count(s) == 2
++    finally:
++        if saved is None:
++            del os.environ["TZ"]
++        else:
++            os.environ["TZ"] = saved
++        time.tzset()
+diff --git i/wildlife/stats.py w/wildlife/stats.py
+index 8618f22..ead2412 100644
+--- i/wildlife/stats.py
++++ w/wildlife/stats.py
+@@ -1,8 +1,9 @@
+-from datetime import datetime, timedelta
++from datetime import datetime, timedelta, timezone
+ 
+ 
+ def _cutoff(hours):
+-    return datetime.now() - timedelta(hours=hours)
++    # Event timestamps are naive UTC, so the cutoff must be naive UTC too.
++    return datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=hours)
+ 
+ 
+ def recent_count(store, hours=24, now=None):

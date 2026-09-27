@@ -1,0 +1,61 @@
+diff --git i/cfg/parser.py w/cfg/parser.py
+index 2793167..5b5e106 100644
+--- i/cfg/parser.py
++++ w/cfg/parser.py
+@@ -8,16 +8,30 @@ Keys before any section go into section "".
+ """
+ 
+ 
++def _strip_comment(value):
++    value = value.strip()
++    if value.startswith('"'):
++        end = value[1:].find('"')
++        if end != -1:
++            return value[1 : end + 1]
++    for i, ch in enumerate(value):
++        if ch in "#;" and i > 0 and value[i - 1] in " \t":
++            return value[:i].rstrip()
++    return value
++
++
+ def parse(text):
+     out, sec = {"": {}}, ""
+     for line in text.splitlines():
+         line = line.strip()
+         if not line or line[0] in "#;":
+             continue
+-        if line.startswith("["):
+-            sec = line[1:-1]
++        if line.startswith("[") and line.endswith("]"):
++            sec = line[1:-1].strip()
+             out.setdefault(sec, {})
+             continue
+-        k, v = line.split("=")
+-        out[sec].setdefault(k.strip(), v.strip())
++        if "=" not in line:
++            continue
++        k, v = line.split("=", 1)
++        out[sec][k.strip().lower()] = _strip_comment(v)
+     return out
+diff --git i/tests/test_parser.py w/tests/test_parser.py
+index bbf29fb..f4a7986 100644
+--- i/tests/test_parser.py
++++ w/tests/test_parser.py
+@@ -3,3 +3,17 @@ from cfg.parser import parse
+ 
+ def test_basic():
+     assert parse("[a]\nx = 1\n") == {"": {}, "a": {"x": "1"}}
++
++
++def test_inline_comments():
++    text = "[a]\nx = 1 # comment\ny = 2 ; comment\nz = 3#nospace\n"
++    assert parse(text) == {"": {}, "a": {"x": "1", "y": "2", "z": "3#nospace"}}
++
++
++def test_quoted_values_protect_chars():
++    assert parse('[a]\nx = "a#b=c"\n') == {"": {}, "a": {"x": "a#b=c"}}
++    assert parse('[a]\nx = "v # keep" # drop\n') == {"": {}, "a": {"x": "v # keep"}}
++
++
++def test_repeated_keys_last_wins():
++    assert parse("[a]\nk = 1\nk = 2\nK = 3\n") == {"": {}, "a": {"k": "3"}}

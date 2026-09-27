@@ -1,0 +1,46 @@
+diff --git i/dusum/cli.py w/dusum/cli.py
+index 099063f..1481cdb 100644
+--- i/dusum/cli.py
++++ w/dusum/cli.py
+@@ -2,9 +2,11 @@ import argparse, os
+ from .scan import scan
+ 
+ 
+-def summarize(root):
++def summarize(root, min_size=None):
+     by_ext, total = {}, 0
+     for path, size in scan(root):
++        if min_size is not None and size < min_size:
++            continue
+         ext = os.path.splitext(path)[1] or "<none>"
+         by_ext[ext] = by_ext.get(ext, 0) + size
+         total += size
+@@ -14,8 +16,9 @@ def summarize(root):
+ def main(argv=None):
+     ap = argparse.ArgumentParser(prog="dusum")
+     ap.add_argument("root")
++    ap.add_argument("--min-size", type=int, default=None)
+     a = ap.parse_args(argv)
+-    by_ext, total = summarize(a.root)
++    by_ext, total = summarize(a.root, min_size=a.min_size)
+     for ext in sorted(by_ext):
+         print(f"{ext}\t{by_ext[ext]}")
+     print(f"TOTAL\t{total}")
+diff --git i/tests/test_cli.py w/tests/test_cli.py
+index 787783a..5f26d94 100644
+--- i/tests/test_cli.py
++++ w/tests/test_cli.py
+@@ -5,3 +5,13 @@ def test_basic(tmp_path, capsys):
+     (tmp_path / "a.txt").write_bytes(b"x" * 10)
+     main([str(tmp_path)])
+     assert "TOTAL\t10" in capsys.readouterr().out
++
++
++def test_min_size(tmp_path, capsys):
++    (tmp_path / "small.txt").write_bytes(b"x" * 5)
++    (tmp_path / "big.log").write_bytes(b"y" * 100)
++    main([str(tmp_path), "--min-size", "50"])
++    out = capsys.readouterr().out
++    assert ".log\t100" in out
++    assert "TOTAL\t100" in out
++    assert ".txt" not in out
