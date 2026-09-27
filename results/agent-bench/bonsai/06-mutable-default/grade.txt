@@ -1,0 +1,17 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+________________________ test_explicit_dict_still_used _________________________
+
+    def test_explicit_dict_still_used():
+        h = {"X": "1"}
+>       assert Request("/", h).headers is h
+E       AssertionError: assert {'X': '1'} is {'X': '1'}
+E        +  where {'X': '1'} = <web.request.Request object at 0x7f8917970a50>.headers
+E        +    where <web.request.Request object at 0x7f8917970a50> = Request('/', {'X': '1'})
+
+tests_hidden/test_hidden.py:12: AssertionError
+=========================== short test summary info ============================
+FAILED tests_hidden/test_hidden.py::test_explicit_dict_still_used - AssertionError: assert {'X': '1'} is {'X': '1'}
+ +  where {'X': '1'} = <web.request.Request object at 0x7f8917970a50>.headers
+ +    where <web.request.Request object at 0x7f8917970a50> = Request('/', {'X': '1'})
+1 failed, 1 passed in 0.02s

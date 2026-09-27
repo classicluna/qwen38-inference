@@ -1,0 +1,72 @@
+diff --git i/cfg/parser.py w/cfg/parser.py
+index 2793167..a4ba124 100644
+--- i/cfg/parser.py
++++ w/cfg/parser.py
+@@ -8,16 +8,38 @@ Keys before any section go into section "".
+ """
+ 
+ 
++def _split_key_value(line):
++    in_quote = False
++    for i, ch in enumerate(line):
++        if ch == '"':
++            in_quote = not in_quote
++        elif ch == "=" and not in_quote:
++            return line[:i], line[i + 1:]
++    raise ValueError(f"missing '=' in line: {line!r}")
++
++
++def _clean_value(value):
++    value = value.strip()
++    if value.startswith('"'):
++        end = value.find('"', 1)
++        if end != -1:
++            return value[1:end]
++    for i, ch in enumerate(value):
++        if ch in "#;" and value[i - 1 : i] == " ":
++            return value[:i].strip()
++    return value
++
++
+ def parse(text):
+     out, sec = {"": {}}, ""
+-    for line in text.splitlines():
+-        line = line.strip()
++    for raw in text.splitlines():
++        line = raw.strip()
+         if not line or line[0] in "#;":
+             continue
+         if line.startswith("["):
+             sec = line[1:-1]
+             out.setdefault(sec, {})
+             continue
+-        k, v = line.split("=")
+-        out[sec].setdefault(k.strip(), v.strip())
++        key, value = _split_key_value(line)
++        out[sec][key.strip().lower()] = _clean_value(value)
+     return out
+diff --git i/tests/test_parser.py w/tests/test_parser.py
+index bbf29fb..7e32260 100644
+--- i/tests/test_parser.py
++++ w/tests/test_parser.py
+@@ -3,3 +3,20 @@ from cfg.parser import parse
+ 
+ def test_basic():
+     assert parse("[a]\nx = 1\n") == {"": {}, "a": {"x": "1"}}
++
++
++def test_inline_comments_quoted_values_and_repeated_keys():
++    text = """
++    # full-line comment
++    ; another
++    X = 1 # inline comment
++    Y = "a=b" ; trailing comment
++    z = "keep # and ; and = inside"
++    [sec]
++    Dup = first
++    Dup = second
++    """
++    assert parse(text) == {
++        "": {"x": "1", "y": "a=b", "z": "keep # and ; and = inside"},
++        "sec": {"dup": "second"},
++    }

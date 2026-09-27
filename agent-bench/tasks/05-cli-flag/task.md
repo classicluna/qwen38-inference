@@ -1,0 +1,1 @@
+Add a `--min-size BYTES` option to the `dusum` CLI (`dusum/cli.py`). When given, files smaller than BYTES are ignored in both the per-extension totals and the grand total. Default: no filtering. Add a test for it. Run `python -m pytest -q`.

@@ -1,0 +1,1 @@
+The dashboard's "events in the last 24 hours" count is too low on servers that aren't in UTC: recent events are missing. Events are stored with UTC timestamps. Find and fix the bug. Run the tests with `python -m pytest -q`.

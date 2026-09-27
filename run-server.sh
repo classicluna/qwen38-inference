@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Bonsai 2 27B (PrismML) on RX 7800 XT (16 GB) — ROCm PTQ1_0 profile on the patched fork
-# (branch bonsai-kern in /home/evank/llama-prism-kern, built by toolchain/build.sh; see
+# (branch bonsai-kern in /home/evank/llama-prism-kern, built by `COMPILER=amdclang toolchain/build.sh build-amd`; see
 # results/kernel/NOTES.md). vs official b10685 + PQ2_0: decode 46.9 -> 51.8 t/s @d0,
 # 39.8 -> 43.1 @32k; prefill 283 -> 432 t/s; weights 1.26 GB smaller; identical perplexity.
 # LLAMA_BIN_DIR=/home/evank/rocm-bin MODEL=models/Ternary-Bonsai-2-27B-PQ2_0.gguf reverts.
@@ -13,14 +13,12 @@
 #     vision projector and compute buffers. 98k+ needs MMPROJ unset.
 #   * Defaults below therefore use f16 KV at 65536 ctx. To get 262k back, run with
 #     `CTX=262144 KVTYPE=q4_0` and accept ~2x slower decode at depth.
-#   * Optional MTP speculation (+12-16 % decode at 24.5k depth, 51 % acceptance) costs ~1.3 GiB:
-#     `MTP=models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf` (needs a shorter ctx to fit).
 #   * DFlash2 draft heads (ProCreations/z-lab) do NOT load in this fork build (needs DFlash2 runtime).
 set -euo pipefail
 cd "$(dirname "$0")"
 # Binary directory: override with LLAMA_BIN_DIR (e.g. /home/evank/llama-prism-src/build-noall/bin
 # for a from-source build; those binaries carry their own RUNPATH, so only the dir changes).
-ROCM_DIR="${LLAMA_BIN_DIR:-/home/evank/llama-prism-kern/build-kern/bin}"
+ROCM_DIR="${LLAMA_BIN_DIR:-/home/evank/llama-prism-kern/build-amd/bin}"
 if [ -x "$ROCM_DIR/llama-server" ] && [ -d "/home/evank/rocm-runtime/opt/rocm/lib" ]; then
   BIN="$ROCM_DIR/llama-server"
   export LD_LIBRARY_PATH="/home/evank/rocm-runtime/opt/rocm/lib:/opt/rocm/lib:${LD_LIBRARY_PATH:-}"
@@ -32,7 +30,7 @@ fi
 MODEL="${MODEL:-$MODEL_DEFAULT}"
 # Context default: with f16 KV + vision projector this leaves ~1.5 GiB of VRAM headroom on 16 GiB.
 # Omitting --ctx-size makes the server auto-fit (measured 114432, only ~0.4 GiB headroom).
-CTX="${CTX:-98304}"
+CTX="${CTX:-81920}"
 UB="${UB:-256}"
 PUBLIC_PORT="${PORT:-8080}"
 BACKEND_PORT="${BACKEND_PORT:-8085}"
@@ -73,10 +71,11 @@ BUDGET_MESSAGE="${BUDGET_MESSAGE-$'\n\nTime is up. I must stop deliberating and 
 [ -n "$MMPROJ" ] && args+=( --mmproj "$MMPROJ" )
 # Optional: encode images on CPU instead of GPU (frees ~0.9 GiB VRAM, slower vision prefill).
 [ -n "${NO_MMPROJ_OFFLOAD:-}" ] && args+=( --no-mmproj-offload )
-# Optional: speculative decoding with a draft MTP head — measured +12-16 % decode at 24.5k depth
-# (51 % acceptance), costs ~1.3 GiB VRAM. Set MTP=models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf (needs a
-# shorter ctx to stay inside 16 GB).
-[ -n "${MTP:-}" ] && args+=( --spec-draft-model "$MTP" --spec-type draft-mtp )
+# MTP speculation, n-max 1: real chat (thinking, default sampling) 51.0 -> 53.6 t/s; n2 50.2, n3 44.3
+# (results/mtp/chat-ab.txt). Greedy-only benches favoured n3 (+32 % prose) but acceptance halves when sampling.
+# With vision: 80k ctx peaks 14.61 GiB (98k peaks 15.70 — too tight). MTP= disables.
+MTP="${MTP-models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf}"
+[ -n "$MTP" ] && args+=( --spec-draft-model "$MTP" --spec-type draft-mtp --spec-draft-n-max "${MTP_N:-1}" )
 
 "$BIN" "${args[@]}" &
 LLAMA_PID=$!

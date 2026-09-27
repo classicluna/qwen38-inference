@@ -1,0 +1,28 @@
+diff --git i/tests/test_handlers.py w/tests/test_handlers.py
+index eb914d9..aa72ada 100644
+--- i/tests/test_handlers.py
++++ w/tests/test_handlers.py
+@@ -3,3 +3,9 @@ from web.handlers import build
+ 
+ def test_auth():
+     assert build("/a", "t").headers == {"Authorization": "Bearer t"}
++
++
++def test_no_state_leak_between_requests():
++    build("/a", "t")
++    assert build("/b").headers == {}
++    assert build("/c").headers == {}
+diff --git i/web/request.py w/web/request.py
+index fac2131..24a5e38 100644
+--- i/web/request.py
++++ w/web/request.py
+@@ -1,7 +1,7 @@
+ class Request:
+-    def __init__(self, path, headers={}):
++    def __init__(self, path, headers=None):
+         self.path = path
+-        self.headers = headers
++        self.headers = {} if headers is None else headers
+ 
+     def with_header(self, k, v):
+         self.headers[k] = v

@@ -1,0 +1,4 @@
+n1     53.6 t/s  acc 73%
+n2     50.2 t/s  acc 62%
+n3     44.3 t/s  acc 50%
+off    51.0 t/s  acc -

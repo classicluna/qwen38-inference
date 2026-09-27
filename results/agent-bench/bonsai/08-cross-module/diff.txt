@@ -1,0 +1,13 @@
+diff --git i/metrics/window.py w/metrics/window.py
+index c30fff6..031ea30 100644
+--- i/metrics/window.py
++++ w/metrics/window.py
+@@ -8,7 +8,7 @@ class Window:
+     def push(self, x):
+         self.samples.append(x)
+         if len(self.samples) > self.size:
+-            self.samples.pop()
++            self.samples.pop(0)
+ 
+     def mean(self):
+         return sum(self.samples) / len(self.samples) if self.samples else 0.0

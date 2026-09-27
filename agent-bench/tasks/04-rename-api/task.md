@@ -1,0 +1,1 @@
+Rename the public function `calc_total` in `billing/core.py` to `compute_invoice_total` everywhere in this package (definitions, call sites, re-exports, tests). Do not leave an alias with the old name. Run `python -m pytest -q` when done.

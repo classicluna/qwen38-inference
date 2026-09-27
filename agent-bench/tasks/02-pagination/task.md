@@ -1,0 +1,1 @@
+Users report that paging through /items skips one item between pages and the last page is sometimes missing. Pages are 1-based. Fix it so every item appears exactly once across pages, and `total_pages` is right. Run `python -m pytest -q`.

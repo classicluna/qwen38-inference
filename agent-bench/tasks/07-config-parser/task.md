@@ -1,0 +1,1 @@
+`cfg.parser.parse` mishandles several inputs from our real config files: inline comments, quoted values containing '#' or '=', and repeated keys (the last one should win). Make the parser handle these per the module docstring. Run `python -m pytest -q`.
