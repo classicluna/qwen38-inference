@@ -80,14 +80,19 @@ BUDGET_MESSAGE="${BUDGET_MESSAGE-$'\n\nTime is up. I must stop deliberating and 
 [ -n "${NO_MMPROJ_OFFLOAD:-}" ] && args+=( --no-mmproj-offload )
 # Speculative decoding with the Qwen3.8 MTP head (also valid for Bonsai, a Qwen3.8 derivative).
 [ -n "$MTP" ] && args+=( --spec-draft-model "$MTP" --spec-type draft-mtp --spec-draft-n-max "${MTP_N:-1}" )
+# Extra speculation flags, word-split (e.g. SPEC_ARGS="--spec-type ngram-map-k").
+[ -n "${SPEC_ARGS:-}" ] && read -r -a spec_extra <<<"$SPEC_ARGS" && args+=( "${spec_extra[@]}" )
 
-"$BIN" "${args[@]}" &
-LLAMA_PID=$!
+# Never load a second model: two 27B servers exhaust the 15 GiB of RAM (+swap) and the OOM killer takes the
+# desktop session with them (2026-09-27 18:35). Refuse to start while any llama-server or the ports are busy.
+if pgrep -x llama-server >/dev/null || ss -ltn "( sport = :$BACKEND_PORT or sport = :$PUBLIC_PORT )" | grep -q LISTEN; then
+  echo "run-server.sh: a llama-server is already running or :$PUBLIC_PORT/:$BACKEND_PORT is taken — refusing to start" >&2
+  pgrep -ax llama-server | cut -c1-120 >&2 || true
+  exit 1
+fi
 
-cleanup() {
-  kill -TERM "$LLAMA_PID" 2>/dev/null || true
-  wait "$LLAMA_PID" 2>/dev/null || true
-}
-trap cleanup EXIT INT TERM
+# The shell execs into the tracker below, so a bash trap can never clean up. Instead the kernel sends
+# llama-server SIGTERM when its parent (this process, later the tracker) dies, however it dies.
+setpriv --pdeathsig TERM -- "$BIN" "${args[@]}" &
 
 exec .venv/bin/python telemetry/tracker.py --port "$PUBLIC_PORT" --backend-port "$BACKEND_PORT"

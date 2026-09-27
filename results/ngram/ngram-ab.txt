@@ -1,0 +1,16 @@
+off          edit-docstrings   27.1 t/s    1247 tok  wall   48.0s  acc 0% of 0
+off          edit-rename       28.3 t/s     352 tok  wall   13.2s  acc 0% of 0
+off          explain           28.1 t/s     630 tok  wall   24.0s  acc 0% of 0
+off          prose             26.9 t/s     414 tok  wall   15.9s  acc 0% of 0
+simple       edit-docstrings   26.6 t/s    1288 tok  wall   49.8s  acc 0% of 0
+simple       edit-rename       29.9 t/s     362 tok  wall   12.5s  acc 0% of 0
+simple       explain           29.8 t/s     681 tok  wall   23.1s  acc 0% of 0
+simple       prose             29.8 t/s     382 tok  wall   13.4s  acc 0% of 0
+map-k        edit-docstrings   29.8 t/s    1282 tok  wall   43.4s  acc 0% of 0
+map-k        edit-rename       29.9 t/s     359 tok  wall   12.4s  acc 0% of 0
+map-k        explain           29.7 t/s     754 tok  wall   25.6s  acc 0% of 0
+map-k        prose             29.9 t/s     377 tok  wall   13.1s  acc 0% of 0
+mod          edit-docstrings   29.8 t/s    1260 tok  wall   42.7s  acc 0% of 0
+mod          edit-rename       29.9 t/s     350 tok  wall   12.1s  acc 0% of 0
+mod          explain           29.8 t/s     698 tok  wall   23.7s  acc 0% of 0
+mod          prose             29.9 t/s     474 tok  wall   16.4s  acc 0% of 0

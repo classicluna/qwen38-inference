@@ -16,3 +16,4 @@ __pycache__/
 toolchain/*
 !toolchain/build.sh
 results/kernel/prof*/
+llama.cpp-new/
