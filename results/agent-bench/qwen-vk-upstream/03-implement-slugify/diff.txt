@@ -1,0 +1,22 @@
+diff --git i/blog/text.py w/blog/text.py
+index c6ceae5..9758776 100644
+--- i/blog/text.py
++++ w/blog/text.py
+@@ -1,3 +1,7 @@
++import re
++import unicodedata
++
++
+ def slugify(title, max_len=50):
+     """Turn a title into a URL slug.
+ 
+@@ -7,4 +11,8 @@ def slugify(title, max_len=50):
+     - truncated to at most max_len characters, never ending in "-"
+     - an empty result becomes "untitled"
+     """
+-    raise NotImplementedError
++    base = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode()
++    base = base.lower()
++    slug = re.sub(r"[^a-z0-9]+", "-", base).strip("-")
++    slug = slug[:max_len].rstrip("-")
++    return slug or "untitled"

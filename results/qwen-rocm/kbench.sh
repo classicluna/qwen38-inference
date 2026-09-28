@@ -4,7 +4,7 @@
 set -uo pipefail
 cd /home/evank/dev/inference
 L=$1 BIN=$2 KV=$3 D=${4:-0,8192,32768}; shift 4 2>/dev/null || shift $#
-pgrep -af 'llama-server|llama-bench|llama-perplexity' && { echo "GPU busy — abort"; exit 1; }
+pgrep -a -r D,R,S,T 'llama-server|llama-bench|llama-perplexity' && { echo "GPU busy — abort"; exit 1; }
 for i in $(seq 60); do [ "$(cat /sys/class/drm/card1/device/mem_info_vram_used)" -lt 2000000000 ] && break; sleep 2; done
 export LD_LIBRARY_PATH=/home/evank/rocm-runtime/opt/rocm/lib
 "$BIN/llama-bench" -m models/Qwen3.8-27B-UD-IQ4_XS.gguf -ngl 99 -fa 1 -ctk "$KV" -ctv "$KV" -ub 256 \

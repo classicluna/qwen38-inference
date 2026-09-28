@@ -1,0 +1,38 @@
+diff --git i/tests/test_handlers.py w/tests/test_handlers.py
+index eb914d9..62e548e 100644
+--- i/tests/test_handlers.py
++++ w/tests/test_handlers.py
+@@ -1,5 +1,18 @@
+ from web.handlers import build
+-
++from web.request import Request
+ 
+ def test_auth():
+     assert build("/a", "t").headers == {"Authorization": "Bearer t"}
++
++def test_headers_do_not_leak_between_requests():
++    first = build("/a", "tok-a")
++    second = build("/b")
++    assert second.headers == {}
++
++
++def test_headers_not_shared_with_caller():
++    caller = {"X-Trace": "1"}
++    first = Request("/a", caller).with_header("X-A", "a")
++    assert caller == {"X-Trace": "1"}
++    second = Request("/b")
++    assert second.headers == {}
+diff --git i/web/request.py w/web/request.py
+index fac2131..41a2ba6 100644
+--- i/web/request.py
++++ w/web/request.py
+@@ -1,7 +1,7 @@
+ class Request:
+-    def __init__(self, path, headers={}):
++    def __init__(self, path, headers=None):
+         self.path = path
+-        self.headers = headers
++        self.headers = dict(headers) if headers is not None else {}
+ 
+     def with_header(self, k, v):
+         self.headers[k] = v

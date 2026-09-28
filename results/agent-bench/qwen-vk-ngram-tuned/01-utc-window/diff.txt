@@ -1,0 +1,52 @@
+diff --git i/tests/test_stats.py w/tests/test_stats.py
+index 59ee600..5d02eca 100644
+--- i/tests/test_stats.py
++++ w/tests/test_stats.py
+@@ -1,4 +1,4 @@
+-from datetime import datetime, timedelta
++from datetime import datetime, timedelta, timezone
+ from wildlife.store import Store
+ from wildlife.stats import recent_count
+ 
+@@ -9,3 +9,21 @@ def test_explicit_now():
+     s.add("zebra", now - timedelta(hours=1))
+     s.add("zebra", now - timedelta(hours=30))
+     assert recent_count(s, now=now) == 1
++
++
++def test_default_window_uses_utc_on_non_utc_server(monkeypatch):
++    # Server whose local clock is 8 hours ahead of UTC (e.g. Asia/Shanghai).
++    class FakeDatetime(datetime):
++        @classmethod
++        def now(cls, tz=None):
++            if tz is None:
++                return datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=8)
++            return datetime.now(tz)
++
++    monkeypatch.setattr("wildlife.stats.datetime", FakeDatetime)
++
++    s = Store()
++    now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
++    s.add("deer", now_utc - timedelta(hours=1))
++    s.add("deer", now_utc - timedelta(hours=30))
++    assert recent_count(s) == 1
+diff --git i/wildlife/stats.py w/wildlife/stats.py
+index 8618f22..983bb95 100644
+--- i/wildlife/stats.py
++++ w/wildlife/stats.py
+@@ -1,8 +1,13 @@
+-from datetime import datetime, timedelta
++from datetime import datetime, timedelta, timezone
++
++
++def _utcnow():
++    return datetime.now(timezone.utc).replace(tzinfo=None)
+ 
+ 
+ def _cutoff(hours):
+-    return datetime.now() - timedelta(hours=hours)
++    return _utcnow() - timedelta(hours=hours)
++
+ 
+ 
+ def recent_count(store, hours=24, now=None):

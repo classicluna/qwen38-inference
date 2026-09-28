@@ -1,0 +1,38 @@
+diff --git i/cfg/parser.py w/cfg/parser.py
+index 2793167..00022c9 100644
+--- i/cfg/parser.py
++++ w/cfg/parser.py
+@@ -8,6 +8,18 @@ Keys before any section go into section "".
+ """
+ 
+ 
++def _unquote(v):
++    v = v.strip()
++    if v.startswith('"'):
++        end = v.find('"', 1)
++        return v[1:end if end != -1 else len(v)]
++    for marker in (" #", " ;"):
++        idx = v.find(marker)
++        if idx != -1:
++            v = v[:idx]
++    return v.strip()
++
++
+ def parse(text):
+     out, sec = {"": {}}, ""
+     for line in text.splitlines():
+@@ -15,9 +27,11 @@ def parse(text):
+         if not line or line[0] in "#;":
+             continue
+         if line.startswith("["):
+-            sec = line[1:-1]
++            sec = line[1:-1].strip()
+             out.setdefault(sec, {})
+             continue
+-        k, v = line.split("=")
+-        out[sec].setdefault(k.strip(), v.strip())
++        k, sep, v = line.partition("=")
++        if not sep:
++            continue
++        out[sec][k.strip().lower()] = _unquote(v)
+     return out

@@ -1,0 +1,52 @@
+diff --git i/tests/test_stats.py w/tests/test_stats.py
+index 59ee600..32f83b8 100644
+--- i/tests/test_stats.py
++++ w/tests/test_stats.py
+@@ -1,4 +1,6 @@
+-from datetime import datetime, timedelta
++import os
++import time
++from datetime import datetime, timedelta, timezone
+ from wildlife.store import Store
+ from wildlife.stats import recent_count
+ 
+@@ -9,3 +11,24 @@ def test_explicit_now():
+     s.add("zebra", now - timedelta(hours=1))
+     s.add("zebra", now - timedelta(hours=30))
+     assert recent_count(s, now=now) == 1
++
++
++def test_default_now_uses_utc():
++    # Server clock is 9h ahead of UTC: the buggy local-time cutoff lands
++    # 15h in the past, wrongly excluding the 18h-old event.
++    old_tz = os.environ.get("TZ")
++    os.environ["TZ"] = "Asia/Tokyo"
++    time.tzset()
++    try:
++        s = Store()
++        utc_now = datetime.now(timezone.utc).replace(tzinfo=None)
++        s.add("lynx", utc_now - timedelta(hours=1))
++        s.add("lynx", utc_now - timedelta(hours=18))
++        s.add("lynx", utc_now - timedelta(hours=30))
++        assert recent_count(s) == 2
++    finally:
++        if old_tz is None:
++            os.environ.pop("TZ", None)
++        else:
++            os.environ["TZ"] = old_tz
++        time.tzset()
+diff --git i/wildlife/stats.py w/wildlife/stats.py
+index 8618f22..d27b709 100644
+--- i/wildlife/stats.py
++++ w/wildlife/stats.py
+@@ -1,8 +1,8 @@
+-from datetime import datetime, timedelta
++from datetime import datetime, timedelta, timezone
+ 
+ 
+ def _cutoff(hours):
+-    return datetime.now() - timedelta(hours=hours)
++    return datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=hours)
+ 
+ 
+ def recent_count(store, hours=24, now=None):

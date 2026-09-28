@@ -1,0 +1,2 @@
+Still starting after 10s — phase: createAgentSession > resolveModelDiscoveryFallbackNonRuntime
+  logs: /home/evank/.omp/logs/omp.2026-09-27.2500027.log · re-run with PI_DEBUG_STARTUP=1 for streaming phase markers

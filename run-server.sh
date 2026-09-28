@@ -17,7 +17,9 @@ case "$PROFILE" in
     # Vulkan beats the patched ROCm build on the agent workload (~90 % decode time): decode 30.0 vs 26.9 t/s
     # short, 26.3 vs 22.7 @40k; ROCm only wins prefill (+10-15 %). q4_0 KV decodes as fast as q8_0 on Vulkan
     # and buys 64k ctx (peak 14.45 GiB). LLAMA_BIN_DIR=$ROCM_BIN switches to ROCm (results/qwen-rocm/NOTES.md).
-    : "${LLAMA_BIN_DIR:=llama.cpp/build/bin}"
+    # Upstream 4da6337 (2026-09-27, worktree llama.cpp-new, build dir build-up): +6 % decode, +7-13 % prefill vs
+    # the fb27a52 build, same perplexity, agent-bench 8/8 at 29.2 vs 28.6 eff t/s. llama.cpp/build/bin reverts.
+    : "${LLAMA_BIN_DIR:=llama.cpp-new/build-up/bin}"
     : "${MODEL:=models/Qwen3.8-27B-UD-IQ4_XS.gguf}"
     : "${ALIAS:=qwen3.8-27b}"
     : "${CTX:=65536}"
