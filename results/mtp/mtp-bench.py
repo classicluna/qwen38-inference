@@ -14,13 +14,17 @@ MODEL = os.environ.get("MODEL", "models/Ternary-Bonsai-2-27B-PTQ1_0.gguf")
 MTP = "models/MTP/mtp-Qwen3.8-27B-Q4_0.gguf"
 VRAM = Path("/sys/class/drm/card1/device/mem_info_vram_used")
 CTX = int(os.environ.get("CTX", 32768))
-BASE = ["-m", MODEL, "-ngl", "99", "-c", str(CTX), "-fa", "on", "-ctk", "f16", "-ctv", "f16", "-ub", "256",
+BASE = ["-m", MODEL, "-ngl", "99", "-c", str(CTX), "-fa", "on", "-ctk", os.environ.get("KV", "f16"), "-ctv", os.environ.get("KV", "f16"), "-ub", "256",
         "--parallel", "1", "--host", "127.0.0.1", "--port", "8090"]
 CONFIGS_ALL = {
     "off": [],
     "mtp-n1": ["--spec-draft-model", MTP, "--spec-type", "draft-mtp", "--spec-draft-n-max", "1"],
     "mtp-n2": ["--spec-draft-model", MTP, "--spec-type", "draft-mtp", "--spec-draft-n-max", "2"],
     "mtp-n3": ["--spec-draft-model", MTP, "--spec-type", "draft-mtp", "--spec-draft-n-max", "3"],
+    # built-in nextn layer of the target GGUF (no sidecar: shares token_embd/output with the target)
+    "mtpi-n1": ["--spec-type", "draft-mtp", "--spec-draft-n-max", "1"],
+    "mtpi-n2": ["--spec-type", "draft-mtp", "--spec-draft-n-max", "2"],
+    "mtpi-n3": ["--spec-type", "draft-mtp", "--spec-draft-n-max", "3"],
 }
 CONFIGS = {k: v for k, v in CONFIGS_ALL.items() if k in os.environ.get("ONLY", ",".join(CONFIGS_ALL)).split(",")}
 corpus = (ROOT / "corpus.txt").read_text()
@@ -30,6 +34,8 @@ PROMPTS = {
     "prose-short": corpus[5000:8000],
     "prose-24k": corpus[100000:100000 + 95000],
 }
+if os.environ.get("PROMPTS"):
+    PROMPTS = {k: v for k, v in PROMPTS.items() if k in os.environ["PROMPTS"].split(",")}
 
 
 def post(body):
@@ -43,7 +49,7 @@ res = json.loads(OUT.read_text()) if OUT.exists() else {}
 for name, extra in CONFIGS.items():
     if name in res:
         continue
-    if subprocess.run(["pgrep", "-f", "llama-server|llama-bench|llama-perplexity"], capture_output=True).returncode == 0:
+    if subprocess.run(["pgrep", "-r", "D,R,S,T", "-f", "llama-server|llama-bench|llama-perplexity"], capture_output=True).returncode == 0:
         sys.exit("GPU busy — abort")
     peak = [0]
     stop = threading.Event()

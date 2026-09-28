@@ -1,0 +1,8 @@
+off-64k            33.2 t/s (token-weighted)  acc -  peak VRAM 15.32 GiB (free 0.66)
+mtpi1-32k          51.7 t/s (token-weighted)  acc 84%  peak VRAM 15.40 GiB (free 0.58)
+mtpi2-32k          59.7 t/s (token-weighted)  acc 72%  peak VRAM 15.55 GiB (free 0.43)
+mtpi3-32k          62.6 t/s (token-weighted)  acc 67%  peak VRAM 15.69 GiB (free 0.29)
+mtpi2-48k          58.8 t/s (token-weighted)  acc 72%  peak VRAM 15.83 GiB (free 0.15)
+mtpi3-48k          61.3 t/s (token-weighted)  acc 65%  peak VRAM 15.86 GiB (free 0.12)
+mtpi2-48k-dq4      59.4 t/s (token-weighted)  acc 72%  peak VRAM 15.77 GiB (free 0.21)
+mtpi2-40k-dq4      59.7 t/s (token-weighted)  acc 73%  peak VRAM 15.64 GiB (free 0.34)

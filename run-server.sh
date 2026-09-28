@@ -22,10 +22,15 @@ case "$PROFILE" in
     : "${LLAMA_BIN_DIR:=llama.cpp-new/build-up/bin}"
     : "${MODEL:=models/Qwen3.8-27B-UD-IQ4_XS.gguf}"
     : "${ALIAS:=qwen3.8-27b}"
-    : "${CTX:=65536}"
+    # Built-in MTP (the GGUF's own nextn layer), 2 draft tokens, graphics queue: 0k-context chat 33.2 -> 59.4 t/s
+    # (72 % acceptance with default sampling). MTP's rollback states + draft KV cost ~0.8 GiB, so ctx is 48k
+    # (peak 15.2 GiB on a plain desktop). MTP= CTX=65536 restores the 64k no-MTP profile (results/qwen-50/).
+    : "${CTX:=49152}"
     : "${KVTYPE:=q4_0}"
     : "${MMPROJ:=}"
-    : "${MTP:=}"
+    : "${MTP:=builtin}"
+    : "${MTP_N:=2}"
+    : "${GFXQ:=1}"
     : "${REASONING_EFFORT:=low}"
     ;;
   bonsai)
@@ -81,7 +86,16 @@ BUDGET_MESSAGE="${BUDGET_MESSAGE-$'\n\nTime is up. I must stop deliberating and 
 # Optional: encode images on CPU instead of GPU (frees ~0.9 GiB VRAM, slower vision prefill).
 [ -n "${NO_MMPROJ_OFFLOAD:-}" ] && args+=( --no-mmproj-offload )
 # Speculative decoding with the Qwen3.8 MTP head (also valid for Bonsai, a Qwen3.8 derivative).
-[ -n "$MTP" ] && args+=( --spec-draft-model "$MTP" --spec-type draft-mtp --spec-draft-n-max "${MTP_N:-1}" )
+# MTP=builtin uses the target GGUF's own nextn layer (no sidecar; shares token_embd/output, ~0.75 GiB less VRAM).
+if [ "$MTP" = builtin ]; then
+  args+=( --spec-type draft-mtp --spec-draft-n-max "${MTP_N:-1}" )
+elif [ -n "$MTP" ]; then
+  args+=( --spec-draft-model "$MTP" --spec-type draft-mtp --spec-draft-n-max "${MTP_N:-1}" )
+fi
+# The MTP draft context keeps its own (1-layer, full-context) KV cache, f16 by default: match the target's type.
+[ -n "$MTP" ] && args+=( --spec-draft-type-k "$KVTYPE" --spec-draft-type-v "$KVTYPE" )
+# RADV: allow the graphics queue for compute (+5 % decode on Vulkan, results/qwen-50/). GFXQ=0 disables.
+[ "${GFXQ:-0}" = 1 ] && export GGML_VK_ALLOW_GRAPHICS_QUEUE=1
 # Extra speculation flags, word-split (e.g. SPEC_ARGS="--spec-type ngram-map-k").
 [ -n "${SPEC_ARGS:-}" ] && read -r -a spec_extra <<<"$SPEC_ARGS" && args+=( "${spec_extra[@]}" )
 

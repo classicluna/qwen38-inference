@@ -1,0 +1,42 @@
+diff --git i/tests/test_stats.py w/tests/test_stats.py
+index 59ee600..59e92f7 100644
+--- i/tests/test_stats.py
++++ w/tests/test_stats.py
+@@ -9,3 +9,21 @@ def test_explicit_now():
+     s.add("zebra", now - timedelta(hours=1))
+     s.add("zebra", now - timedelta(hours=30))
+     assert recent_count(s, now=now) == 1
++
++
++def test_default_cutoff_uses_utc(monkeypatch):
++    from datetime import timezone
++    import wildlife.stats as stats
++
++    class FakeDT(datetime):
++        @classmethod
++        def now(cls, tz=None):
++            if tz is None:
++                raise AssertionError("now() called without UTC tz")
++            return datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
++
++    monkeypatch.setattr(stats, "datetime", FakeDT)
++    s = Store()
++    s.add("zebra", datetime(2026, 1, 1, 11))
++    assert stats.recent_count(s) == 1
++    assert stats._cutoff(24) == datetime(2025, 12, 31, 12)
+diff --git i/wildlife/stats.py w/wildlife/stats.py
+index 8618f22..6f7b5c4 100644
+--- i/wildlife/stats.py
++++ w/wildlife/stats.py
+@@ -1,8 +1,8 @@
+-from datetime import datetime, timedelta
+-
++from datetime import datetime, timedelta, timezone
+ 
+ def _cutoff(hours):
+-    return datetime.now() - timedelta(hours=hours)
++    now = datetime.now(timezone.utc).replace(tzinfo=None)
++    return now - timedelta(hours=hours)
+ 
+ 
+ def recent_count(store, hours=24, now=None):

@@ -1,0 +1,41 @@
+diff --git i/shop/api.py w/shop/api.py
+index 92427c9..6dab070 100644
+--- i/shop/api.py
++++ w/shop/api.py
+@@ -3,7 +3,7 @@ from . import service
+ 
+ def list_items(page=1, per_page=10):
+     """Return one 1-based page of items plus paging metadata."""
+-    offset = page * per_page - per_page + (page - 1)
++    offset = (page - 1) * per_page
+     items = service.fetch(offset, per_page)
+-    total_pages = service.count() // per_page
++    total_pages = (service.count() + per_page - 1) // per_page
+     return {"page": page, "items": items, "total_pages": total_pages}
+diff --git i/tests/test_api.py w/tests/test_api.py
+index 67a196f..447beda 100644
+--- i/tests/test_api.py
++++ w/tests/test_api.py
+@@ -5,3 +5,22 @@ def test_first_page():
+     r = list_items(1, 10)
+     assert r["items"][0] == "item-0"
+     assert len(r["items"]) == 10
++
++
++def test_all_items_appear_exactly_once_across_pages():
++    page = 1
++    seen = []
++    total_pages = None
++    while True:
++        r = list_items(page, 10)
++        if total_pages is None:
++            total_pages = r["total_pages"]
++        assert r["total_pages"] == 3
++        seen.extend(r["items"])
++        page += 1
++        if page > total_pages:
++            break
++    assert len(seen) == 23
++    assert seen == [f"item-{i}" for i in range(23)]
++    assert set(seen) == {f"item-{i}" for i in range(23)}
++    assert len(set(seen)) == len(seen)
