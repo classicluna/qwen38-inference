@@ -85,7 +85,7 @@ BUDGET_MESSAGE="${BUDGET_MESSAGE-$'\n\nTime is up. I must stop deliberating and 
 
 # Never load a second model: two 27B servers exhaust the 15 GiB of RAM (+swap) and the OOM killer takes the
 # desktop session with them (2026-09-27 18:35). Refuse to start while any llama-server or the ports are busy.
-if pgrep -x llama-server >/dev/null || ss -ltn "( sport = :$BACKEND_PORT or sport = :$PUBLIC_PORT )" | grep -q LISTEN; then
+if pgrep -x -r D,R,S,T llama-server >/dev/null || ss -ltn "( sport = :$BACKEND_PORT or sport = :$PUBLIC_PORT )" | grep -q LISTEN; then
   echo "run-server.sh: a llama-server is already running or :$PUBLIC_PORT/:$BACKEND_PORT is taken — refusing to start" >&2
   pgrep -ax llama-server | cut -c1-120 >&2 || true
   exit 1

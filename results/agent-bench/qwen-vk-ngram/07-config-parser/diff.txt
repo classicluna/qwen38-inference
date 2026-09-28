@@ -1,0 +1,60 @@
+diff --git i/cfg/parser.py w/cfg/parser.py
+index 2793167..c36dff6 100644
+--- i/cfg/parser.py
++++ w/cfg/parser.py
+@@ -14,10 +14,22 @@ def parse(text):
+         line = line.strip()
+         if not line or line[0] in "#;":
+             continue
+-        if line.startswith("["):
+-            sec = line[1:-1]
+-            out.setdefault(sec, {})
++        if line[0] == "[":
++            end = line.find("]")
++            if end != -1:
++                sec = line[1:end].strip()
++                out.setdefault(sec, {})
+             continue
+-        k, v = line.split("=")
+-        out[sec].setdefault(k.strip(), v.strip())
++        k, v = line.split("=", 1)
++        out[sec][k.strip().lower()] = _value(v.strip())
+     return out
++
++
++def _value(v):
++    if v[0] == '"':
++        end = v.find('"', 1)
++        return v[1:end] if end != -1 else v[1:]
++    for i, ch in enumerate(v):
++        if ch in "#;" and i > 0 and v[i - 1] in " \t":
++            return v[:i].strip()
++    return v
+diff --git i/tests/test_parser.py w/tests/test_parser.py
+index bbf29fb..ca81fab 100644
+--- i/tests/test_parser.py
++++ w/tests/test_parser.py
+@@ -3,3 +3,23 @@ from cfg.parser import parse
+ 
+ def test_basic():
+     assert parse("[a]\nx = 1\n") == {"": {}, "a": {"x": "1"}}
++
++
++def test_inline_comments():
++    assert parse("[a]\nx = 1 # c\ny = 2 ; c\n") == {"": {}, "a": {"x": "1", "y": "2"}}
++
++
++def test_quoted_values_protect_specials():
++    assert parse('[a]\nx = "v # a ; b = c"\n') == {"": {}, "a": {"x": "v # a ; b = c"}}
++
++
++def test_value_with_equals():
++    assert parse("[a]\nx = a=b\n") == {"": {}, "a": {"x": "a=b"}}
++
++
++def test_repeated_key_last_wins():
++    assert parse("[a]\nx = 1\nx = 2\n") == {"": {}, "a": {"x": "2"}}
++
++
++def test_keys_lowercased():
++    assert parse("[a]\nFoo = 1\nFOO = 2\n") == {"": {}, "a": {"foo": "2"}}

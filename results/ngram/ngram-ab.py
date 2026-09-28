@@ -57,10 +57,17 @@ try:
         p = subprocess.Popen(["./run-server.sh"], cwd=ROOT, env={**os.environ, "SPEC_ARGS": args},
                              stdout=open(ROOT / f"results/ngram/server-{label}.log", "w"), stderr=subprocess.STDOUT)
         for _ in range(450):
+            if p.poll() is not None:
+                sys.exit(f"{label}: run-server.sh exited (see results/ngram/server-{label}.log)")
             try:
                 urllib.request.urlopen("http://127.0.0.1:8080/health", timeout=2); break
             except Exception:
                 time.sleep(2)
+        # the backend must be the server we just started, with speculation exactly as requested
+        with urllib.request.urlopen("http://127.0.0.1:8085/slots", timeout=10) as r:
+            spec_on = json.load(r)[0]["speculative"]
+        if spec_on != bool(args.strip()):
+            sys.exit(f"{label}: backend speculative={spec_on}, expected {bool(args.strip())} — stale server?")
         row = {}
         for w, prompt in WORK.items():
             rs = [chat(prompt) for _ in range(REPS)]
