@@ -17,3 +17,6 @@ toolchain/*
 !toolchain/build.sh
 results/kernel/prof*/
 llama.cpp-new/
+
+# telemetry request log (local usage data)
+telemetry/usage.db*
